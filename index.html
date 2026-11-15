@@ -376,7 +376,7 @@ const player=()=>`<section class="card">${H('Lettore musicale')}<div class="row"
 /* ---------- weekly ---------- */
 const WK=C.weekly.slice().sort((a,b)=>b.n-a.n);
 const wkPdf=v=>'weekly/narpoplay-vol-'+pad3(v.n)+'.pdf';
-const wkCover=(v,big)=>`<span class="wk ${big===2?'xl':big?'big':''}" style="--hu:${(v.n*47)%360}"${v.pdf?` data-wk="${+v.n}"`:''}>${v.pdf&&WKC[v.n]?`<img src="${WKC[v.n]}" alt="Copertina del volume ${+v.n}">`:''}<span>WEEKLY<br>NARPOPLAY</span><b>VOL.<br>${pad3(v.n)}</b></span>`;
+const wkCover=(v,big)=>`<span class="wk ${big===2?'xl':big?'big':''}" style="--hu:${(v.n*47)%360}"data-wk="${+v.n}"${v.pdf?' data-pdf="1"':''}>${WKC[v.n]?`<img src="${WKC[v.n]}" alt="Copertina del volume ${+v.n}">`:''}<span>WEEKLY<br>NARPOPLAY</span><b>VOL.<br>${pad3(v.n)}</b></span>`;
 /* la copertina è la prima pagina del PDF, disegnata nel browser */
 const PDFJS='https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/',WKC={};let pdfLib=null,wkQ=Promise.resolve();
 function wkFromPdf(n){
@@ -396,7 +396,14 @@ function wkFromPdf(n){
     }catch(e){return null}
   });
 }
-function wkFill(){document.querySelectorAll('[data-wk]').forEach(el=>{if(el.querySelector('img'))return;const n=el.dataset.wk;wkFromPdf(n).then(u=>{if(u&&el.isConnected&&!el.querySelector('img'))el.insertAdjacentHTML('afterbegin',`<img src="${u}" alt="Copertina del volume ${n}">`)})})}
+/* copertina: prima un file immagine (weekly/narpoplay-vol-008.png, poi .jpg); se non c'è, la prima pagina del PDF */
+const WKI={};
+function wkImg(n){
+  return WKI[n]||(WKI[n]=new Promise(res=>{const ext=['png','jpg'];let i=0;
+    const next=()=>{if(i>=ext.length)return res(null);const u='weekly/narpoplay-vol-'+pad3(n)+'.'+ext[i++],im=new Image();im.onload=()=>res(WKC[n]=u);im.onerror=next;im.src=u};next()}));
+}
+function wkFill(){document.querySelectorAll('[data-wk]').forEach(el=>{if(el.querySelector('img'))return;const n=el.dataset.wk,pdf=el.dataset.pdf;
+  wkImg(n).then(u=>u||(pdf?wkFromPdf(n):null)).then(u=>{if(u&&el.isConnected&&!el.querySelector('img'))el.insertAdjacentHTML('afterbegin',`<img src="${u}" alt="Copertina del volume ${n}">`)})})}
 const wkBtn=v=>v.pdf?`<a class="btn" href="${wkPdf(v)}">Leggi il PDF</a>`:`<span class="btn off">PDF da caricare</span>`;
 
 /* ---------- news ---------- */
