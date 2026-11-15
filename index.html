@@ -270,6 +270,7 @@ const wide=()=>window.matchMedia('(min-width:761px)').matches;
 const R=D.R; // [data, minuti, titolo, giochi[], rubriche[], ospiti[]]
 const G=[],GI={},SL={};
 const FIN=/\bfinal[ei]\b|titoli di coda|\bending\b|\bla fine\b|conclusione|ultima puntata|ultimo episodio|epilogo/i;
+for(const r of R)r[3]=r[3].filter(k=>/[\p{L}\p{N}]/u.test(k));
 for(const r of R)for(const k of r[3]){let g=GI[k];if(!g){g=GI[k]={k,s:[]};G.push(g)}g.s.push(r)}
 const TODAY=R[0][0], RECENT=new Date(new Date(TODAY).getTime()-60*864e5).toISOString().slice(0,10);
 for(const g of G){
@@ -368,7 +369,27 @@ const player=()=>`<section class="card">${H('Lettore musicale')}<div class="row"
 /* ---------- weekly ---------- */
 const WK=C.weekly.slice().sort((a,b)=>b.n-a.n);
 const wkPdf=v=>'weekly/narpoplay-vol-'+pad3(v.n)+'.pdf';
-const wkCover=(v,big)=>`<span class="wk ${big?'big':''}" style="--hu:${(v.n*47)%360}">${v.pdf?`<img src="weekly/narpoplay-vol-${pad3(v.n)}.jpg" alt="Copertina del volume ${v.n}" onerror="this.remove()">`:''}<span>WEEKLY<br>NARPOPLAY</span><b>VOL.<br>${pad3(v.n)}</b></span>`;
+const wkCover=(v,big)=>`<span class="wk ${big?'big':''}" style="--hu:${(v.n*47)%360}"${v.pdf?` data-wk="${+v.n}"`:''}>${v.pdf&&WKC[v.n]?`<img src="${WKC[v.n]}" alt="Copertina del volume ${+v.n}">`:''}<span>WEEKLY<br>NARPOPLAY</span><b>VOL.<br>${pad3(v.n)}</b></span>`;
+/* la copertina è la prima pagina del PDF, disegnata nel browser */
+const PDFJS='https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/',WKC={};let pdfLib=null,wkQ=Promise.resolve();
+function wkFromPdf(n){
+  if(WKC[n])return Promise.resolve(WKC[n]);
+  try{const c=sessionStorage.getItem('nj.wk'+n);if(c)return Promise.resolve(WKC[n]=c)}catch(e){}
+  return wkQ=wkQ.then(async()=>{
+    if(WKC[n])return WKC[n];
+    try{
+      pdfLib=pdfLib||(async()=>{const m=await import(PDFJS+'pdf.min.mjs');try{const t=await(await fetch(PDFJS+'pdf.worker.min.mjs')).text();m.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([t],{type:'text/javascript'}))}catch(e){}return m})();
+      const lib=await pdfLib,task=lib.getDocument({url:wkPdf({n})}),doc=await task.promise,pg=await doc.getPage(1);
+      const v0=pg.getViewport({scale:1}),vp=pg.getViewport({scale:560/v0.width}),cv=document.createElement('canvas');
+      cv.width=Math.round(vp.width);cv.height=Math.round(vp.height);
+      await pg.render({canvasContext:cv.getContext('2d'),viewport:vp,canvas:cv}).promise;
+      const u=cv.toDataURL('image/jpeg',.82);WKC[n]=u;try{task.destroy()}catch(e){}
+      try{sessionStorage.setItem('nj.wk'+n,u)}catch(e){}
+      return u;
+    }catch(e){return null}
+  });
+}
+function wkFill(){document.querySelectorAll('[data-wk]').forEach(el=>{if(el.querySelector('img'))return;const n=el.dataset.wk;wkFromPdf(n).then(u=>{if(u&&el.isConnected&&!el.querySelector('img'))el.insertAdjacentHTML('afterbegin',`<img src="${u}" alt="Copertina del volume ${n}">`)})})}
 const wkBtn=v=>v.pdf?`<a class="btn" href="${wkPdf(v)}">Leggi il PDF</a>`:`<span class="btn off">PDF da caricare</span>`;
 
 /* ---------- news ---------- */
@@ -379,9 +400,14 @@ const ntag=n=>`<span class="tag ${n.tipo==='articolo'?'ar':''}">${n.tipo==='arti
 
 /* ---------- canali amici ---------- */
 function amici(){
-  if(C.amici.length)return C.amici;
   const c={};R.forEach(r=>r[5].forEach(x=>c[x]=(c[x]||0)+1));
-  return Object.keys(c).filter(k=>D.GUEST[k]&&D.GUEST[k].l).sort((a,b)=>c[b]-c[a]).slice(0,9).map(k=>({nome:k,link:D.GUEST[k].l,piattaforma:/twitch/.test(D.GUEST[k].l)?'Twitch':/youtube/.test(D.GUEST[k].l)?'YouTube':'Web',testo:D.GUEST[k].d||'',av:D.GUEST[k].i,avt:D.GUEST[k].t,n:c[k]}));
+  const plat=l=>/twitch/i.test(l)?'Twitch':/youtu/i.test(l)?'YouTube':/tiktok/i.test(l)?'TikTok':l?'Web':'';
+  const auto=Object.keys(c).filter(k=>D.GUEST[k]&&D.GUEST[k].l).sort((a,b)=>c[b]-c[a]).slice(0,9).map(k=>({nome:k,link:D.GUEST[k].l,piattaforma:plat(D.GUEST[k].l),testo:D.GUEST[k].d||'',av:D.GUEST[k].i,avt:D.GUEST[k].t,n:c[k]}));
+  // i canali scritti a mano: se il nome è quello di un ospite dello storico, i campi vuoti si completano da lì
+  const man=(C.amici||[]).filter(a=>a&&a.nome).map(a=>{const k=Object.keys(D.GUEST).find(x=>x.toLowerCase()===a.nome.trim().toLowerCase())||Object.keys(c).find(x=>x.toLowerCase()===a.nome.trim().toLowerCase()),g=(k&&D.GUEST[k])||{},link=a.link||g.l||'';
+    return{nome:a.nome.trim(),link,piattaforma:a.piattaforma||plat(link),gioca:a.gioca||'',testo:a.testo||g.d||'',img:a.img||'',av:a.img?'':g.i,avt:g.t,n:k?c[k]||0:0,live:a.live}});
+  if(!man.length)return auto;
+  return C.amiciOspiti?man.concat(auto.filter(x=>!man.some(m=>m.nome.toLowerCase()===x.nome.toLowerCase()))):man;
 }
 function fillAv(){document.querySelectorAll('[data-av]').forEach(el=>{const b=window.GUEST_B64&&window.GUEST_B64[el.dataset.av];if(b){el.innerHTML=`<img src="data:image/${el.dataset.t||'jpeg'};base64,${b}" alt="">`;el.removeAttribute('data-av')}})}
 function needAv(){if(window.GUEST_B64)return fillAv();if(needAv.q)return;needAv.q=1;const s=document.createElement('script');s.src='ospiti.js';s.onload=fillAv;document.body.appendChild(s)}
@@ -580,10 +606,10 @@ PG.video=()=>{
 PG.amici=()=>{
   const A=amici(),i=S.ring%A.length,cur=A[i]||{},code=`<a href="${CH.sito}"><img src="${CH.sito}/banner.png" alt="${CH.nome}" width="176" height="62"></a>`;
   setTimeout(needAv,0);
-  return `<section class="card"><h1 class="pt">Canali amici</h1><p class="mu" style="margin-top:6px">Chi passa spesso dalle live del canale. Vai a trovarli.</p></section>
-  <div class="fr">${A.map(a=>`<section class="card fc"><div style="display:flex;gap:12px;align-items:center"><span class="fa" style="--hu:${hue(a.nome)}"${a.av?` data-av="${esc(a.av)}" data-t="${esc(a.avt||'jpeg')}"`:''}>${esc(a.nome[0].toUpperCase())}</span><div><b>${esc(a.nome)}</b><br>
+  return `<section class="card"><h1 class="pt">Canali amici</h1><p class="mu" style="margin-top:6px">${(C.amici||[]).some(a=>a&&a.nome)?'I canali consigliati da '+esc(CH.nome)+'. Vai a trovarli.':'Chi passa spesso dalle live del canale. Vai a trovarli.'}</p></section>
+  <div class="fr">${A.map(a=>`<section class="card fc"><div style="display:flex;gap:12px;align-items:center"><span class="fa" style="--hu:${hue(a.nome)}"${a.av?` data-av="${esc(a.av)}" data-t="${esc(a.avt||'jpeg')}"`:''}>${a.img?`<img src="${esc(a.img)}" alt="" onerror="this.replaceWith('${esc(a.nome[0].toUpperCase()).replace(/'/g,'')}')">`:esc(a.nome[0].toUpperCase())}</span><div><b>${esc(a.nome)}</b><br>
     ${a.live===true?'<span class="st live">IN LIVE ORA</span>':a.live===false?'<span class="st offl">OFFLINE</span>':'<span class="st n">stato live: da collegare</span>'}</div></div>
-   <span class="mu sm">${esc(a.piattaforma||'')}${a.gioca?' · gioca a '+esc(a.gioca):''}${a.n?' · ospite in '+a.n+' live':''}</span><p>${esc(a.testo||'')}</p><a class="btn gh" href="${esc(a.link)}" style="margin-top:auto">Vai al canale</a></section>`).join('')}</div>
+   <span class="mu sm">${esc(a.piattaforma||'')}${a.gioca?' · gioca a '+esc(a.gioca):''}${a.n?' · ospite in '+a.n+' live':''}</span><p>${esc(a.testo||'')}</p>${a.link?`<a class="btn gh" href="${esc(a.link)}" style="margin-top:auto">Vai al canale</a>`:''}</section>`).join('')}</div>
   <div class="row">
    <section class="card">${H('Linkami')}<div class="row" style="align-items:center"><div class="ban"><i></i>${esc(CH.nome)}</div><div style="flex:1 1 240px"><label for="lcode" class="sm mu">Codice da copiare</label><textarea class="code" id="lcode" readonly>${esc(code)}</textarea><button class="btn gh" data-a="copy">Copia il codice</button> <span id="cpok" class="sm" role="status"></span></div></div></section>
    <section class="card">${H('Entra nella lista')}<p>Hai un canale e passi spesso di qui? Scrivimi e ti aggiungo.</p><a class="btn mag" href="${esc(CH.twitch)}" style="margin-top:12px">Scrivimi</a></section>
@@ -684,7 +710,7 @@ function render(scroll){
   $('tabbar').innerHTML=[['home','Home'],['live','Live'],['backlog','Backlog'],['weekly','Weekly']].map(m=>`<a href="#${m[0]}"${cur(m[0])}>${IC[m[0]]}${m[1]}</a>`).join('')+`<button data-a="more"${['news','video','carte','chat','amici','segreto'].includes(r.p)?' aria-current="page"':''}>${IC.more}Altro</button>`;
   $('view').innerHTML=r.html();
   $('foot').innerHTML=`<span>${esc(CH.nome)} · in live da ${YEARS} anni</span><span>le tue visite: ${nf(LS.get('visite',1))}</span><nav aria-label="Altri link"><a class="lk" href="#amici">canali amici</a><a class="lk" href="${esc(CH.twitch)}">Twitch</a><a class="lk" href="${esc(CH.youtube)}">YouTube</a>${CH.tiktok?`<a class="lk" href="${esc(CH.tiktok)}">TikTok</a>`:''}<button class="lk" data-a="intro">rivedi l’intro</button></nav>`;
-  renderBL();pUI();
+  renderBL();pUI();wkFill();
   if(scroll!==false){window.scrollTo(0,0);if(curP)$('view').focus({preventScroll:true})}
   curP=location.hash;
 }
