@@ -1,0 +1,18 @@
+SITO NARPO_JURI - cartella da caricare sull'hosting
+
+File:
+  index.html   il sito (tutte le pagine)
+  data.js      database delle live e dei giochi (dallo Storico Live)
+  content.js   contenuti da modificare a mano: link, weekly, news, video, carte, prossima live
+  ospiti.js    avatar degli ospiti
+  covers.js    copertine IGDB  -> NON e' in questo zip: aggiungilo tu nella stessa cartella
+
+Cartelle da creare quando servono:
+  weekly/      narpoplay-vol-001.pdf e narpoplay-vol-001.jpg (copertina)
+  carte/       immagini delle carte
+  musica/      brani del lettore
+  img/         mascotte, foto degli articoli
+
+Dopo la pubblicazione, in content.js:
+  canale.sito      -> l'indirizzo definitivo del sito
+  carte.foglio.id  -> l'id del Google Sheet delle carte
