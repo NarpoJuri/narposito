@@ -14,7 +14,7 @@ window.NJC = {
     "x": "https://x.com/narpo_juri",
     "bluesky": "",
     "sito": "https://narpojuri.github.io",
-    "mascotte": ""
+    "mascotte": "img/tamacast.png"
   },
   "link": [
     {
