@@ -9,7 +9,7 @@ window.NJC = {
     bio: 'Appassionato di retrogaming tra giochi dimenticati e dimenticabili.',
     youtube: 'https://www.youtube.com/@NarpoTeca',
     youtubeNome: 'NarpoTeca',
-    tiktok: '', instagram: '', x: '', bluesky: '',    // se vuoti i link non compaiono
+    tiktok: '', instagram: 'https://www.instagram.com/narpo_juri/', x: 'https://x.com/narpo_juri', bluesky: 'https://bsky.app/profile/narpojuri.bsky.social',    // se vuoti i link non compaiono
     sito: 'https://narpojuri.github.io',                      // indirizzo definitivo, serve per il banner "Linkami"
     mascotte: ''                                      // percorso immagine (es. img/tamacast.png); se vuoto resta il segnaposto
   },
