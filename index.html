@@ -94,12 +94,11 @@ button.tc{background:none;border:0;padding:0;text-align:left;font:inherit;color:
 .wk b{font-size:1.9em;font-weight:400;line-height:1.1}.wk img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .wk.big{width:min(260px,100%);font-size:16px;padding:16px}
 .wk.xl{width:min(330px,72vw);font-size:19px;padding:20px;box-shadow:0 10px 0 var(--line)}
-.slw{padding:28px 20px 18px}
-.slt{display:grid}
-.sl{grid-area:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;min-width:0;opacity:0;visibility:hidden;transition:opacity .5s}
-.sl.on{opacity:1;visibility:visible}
-.sln{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-top:22px}
-.sln .pb{width:40px;height:40px;font-size:18px;font-weight:700}
+.ev{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:28px;padding:24px}
+.evw{display:flex;flex-direction:column;align-items:center;gap:14px}.evw .h{align-self:flex-start}
+.evr{display:flex;flex-direction:column;gap:22px;min-width:0;border-left:1px solid var(--line);padding-left:28px}
+.evv{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:center}
+.ev .wk.xl{width:min(300px,100%)}
 /* lettore */
 .disc{width:96px;height:96px;border-radius:50%;border:30px solid var(--ink);outline:4px solid var(--acc);outline-offset:-4px;background:conic-gradient(var(--soft),var(--cy),var(--soft),#ffd9f0,var(--soft));flex:none}
 .disc.on{animation:gira 3s linear infinite}@keyframes gira{to{transform:rotate(360deg)}}
@@ -219,7 +218,7 @@ body{font-size:16px}
 .tile{padding:14px;gap:6px;border-radius:14px}.tile svg{width:32px;height:32px}.tile b{font-size:12px}.tile span{font-size:14px}
 .five{display:flex;overflow-x:auto;gap:12px;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 8px}
 .five .g{flex:0 0 38%;scroll-snap-align:start}
-.slw{padding:20px 14px 14px}.slw .five{margin:0;padding:0 0 8px}.sln .chip{padding:0 12px;font-size:14px}
+.ev{grid-template-columns:1fr;gap:22px;padding:16px}.evr{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:18px}.evv{grid-template-columns:1fr}.ev .wk.xl{width:min(260px,72vw)}
 .grid{grid-template-columns:repeat(2,1fr);gap:16px 12px}
 .stats{grid-template-columns:1fr 1fr}.stats b{font-size:20px}
 .ff{grid-template-columns:1fr 1fr}.ff .fl:first-child{grid-column:1/-1}
@@ -233,7 +232,7 @@ body{font-size:16px}
 .foot{flex-direction:column;align-items:flex-start}
 .msgs.tall{max-height:46vh}
 }
-@media (prefers-reduced-motion:reduce){.sl{transition:none}.tick span{animation:none;padding-left:16px;white-space:normal}.disc.on,#intro .ring{animation:none}html{scroll-behavior:auto}}
+@media (prefers-reduced-motion:reduce){.tick span{animation:none;padding-left:16px;white-space:normal}.disc.on,#intro .ring{animation:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -431,21 +430,20 @@ PG.home=()=>{
   const pl=C.prossimaLive,vol=w?`online il volume ${w.n} del Weekly Narpoplay`:'';
   const tick=[...C.novita,vol,pl.quando?`prossima live: ${pl.quando}${pl.gioco?' – '+pl.gioco:''}`:'',`ultima live: ${R[0][2]}`,`${nf(R.length)} live e ${nf(G.length)} giochi nell’archivio`].filter(Boolean);
   const soc=[['instagram','Instagram'],['x','X'],['bluesky','Bluesky'],['tiktok','TikTok']].filter(x=>CH[x[0]]);
-  const v=vdata().L[0],SL=['Weekly Narpoplay','Ultimo video',actOk?'In live adesso':'Dal backlog'];
-  const sl=[
-   w?`<h2 class="pt">Weekly Narpoplay</h2>${wkCover(w,2)}<p><b style="font-size:1.2em">Volume ${w.n}</b><br><span class="mu">uscito il ${dtl(w.data)}</span></p><div class="chips" style="justify-content:center">${wkBtn(w)}<a class="btn gh" href="#weekly">Tutti gli arretrati</a></div>`
-    :`<h2 class="pt">Weekly Narpoplay</h2><p class="mu">Il primo volume è in arrivo.</p>`,
-   v?`<h2 class="pt">Ultimo video</h2><a href="#video" data-a="vpick" data-v="0" class="ph" style="aspect-ratio:16/9;position:relative;width:min(620px,100%);text-decoration:none">ANTEPRIMA${thumb(v)}</a><p><b style="font-size:1.2em">${esc(v.titolo)}</b>${v.data||v.viste?`<br><span class="mu">${esc([v.data,v.viste?v.viste+' visualizzazioni':''].filter(Boolean).join(' · '))}</span>`:''}</p><div class="chips" style="justify-content:center"><a class="btn" href="#video" data-a="vpick" data-v="0">Guarda il video</a><a class="btn gh" href="${esc(CH.youtube)}">Canale YouTube</a></div>`:'',
-   `<h2 class="pt">${actOk?'Titoli attivi in live':'Ultimi giochi in live'}</h2><div class="five" style="width:100%;text-align:left">${act.slice(0,5).map(x=>gcard(x,x.n)).join('')}</div><div class="chips" style="justify-content:center"><a class="btn" href="#backlog">Tutto il backlog</a><button class="btn gh" data-a="rnd">Gioco a caso</button></div>`];
-  if(S.sl>2||!sl[S.sl])S.sl=0;
+  const v=vdata().L[0];
   return `<header class="card hero">
    <button class="ring" data-a="egg" aria-label="Tamacast, la mascotte del canale">${mascot()}</button>
    <div class="tx"><h1>${esc(CH.nome)}</h1><p class="mu" style="font-size:1.15em">${esc(CH.motto)}</p>${CH.bio?`<p>${esc(CH.bio)}</p>`:''}<a class="btn mag" style="min-height:48px;padding:0 26px;font-size:13px" href="#live">Guarda la live</a></div>
    <div class="lcd onair"><b>ON AIR</b><span>prossima live:</span><span>${esc(pl.quando||'calendario in arrivo')}</span><span>${esc(pl.gioco||'')}</span></div></header>
   <div class="tick" aria-label="Novità"><span>${tick.map(esc).join(' /// ')} ///</span></div>
-  <section class="card slw" aria-roledescription="carosello" aria-label="In evidenza">
-   <div class="slt">${sl.map((h,i)=>`<div class="sl${i===S.sl?' on':''}" aria-hidden="${i!==S.sl}"${i===S.sl?'':' inert'}>${h}</div>`).join('')}</div>
-   <div class="sln"><button class="pb" data-a="sln" data-v="-1" aria-label="Precedente">‹</button>${SL.map((t,i)=>sl[i]?`<button class="chip" data-a="sl" data-v="${i}" aria-pressed="${i===S.sl}">${t}</button>`:'').join('')}<button class="pb" data-a="sln" data-v="1" aria-label="Successivo">›</button><button class="pb" data-a="slp" aria-label="${S.slp?'Riprendi lo scorrimento':'Ferma lo scorrimento'}">${S.slp?'▶':'❚❚'}</button></div></section>
+  <section class="card ev" aria-label="In evidenza">
+   <div class="evw">${H('Weekly Narpoplay')}${w?`${wkCover(w,2)}<p style="text-align:center"><b style="font-size:1.2em">Volume ${w.n}</b><br><span class="mu">uscito il ${dtl(w.data)}</span></p><div class="chips" style="justify-content:center">${wkBtn(w)}<a class="btn gh" href="#weekly">Tutti gli arretrati</a></div>`:'<p class="mu">Il primo volume è in arrivo.</p>'}</div>
+   <div class="evr">
+    ${v?`<div>${H('Ultimo video')}<div class="evv"><a href="#video" data-a="vpick" data-v="0" class="ph" style="aspect-ratio:16/9;position:relative;text-decoration:none">ANTEPRIMA${thumb(v)}</a>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start;min-width:0"><b style="font-size:1.15em;line-height:1.3">${esc(v.titolo)}</b>${v.data||v.viste?`<span class="mu">${esc([v.data,v.viste?v.viste+' visualizzazioni':''].filter(Boolean).join(' · '))}</span>`:''}<a class="btn" href="#video" data-a="vpick" data-v="0">Guarda il video</a></div></div></div>`:''}
+    <div>${H(actOk?'Backlog · titoli attivi in live':'Backlog · ultimi giochi in live')}<div class="five">${act.slice(0,5).map(x=>gcard(x,x.n)).join('')}</div>
+     <div style="display:flex;flex-wrap:wrap;gap:0 24px;margin-top:8px"><a class="lk" href="#backlog">tutto il backlog</a><button class="lk" data-a="rnd">gioco a caso</button></div></div>
+   </div></section>
   <section class="card">${H('Community e link')}<div class="hub">${C.link.map(l=>`<a href="${esc(l.url)}"><b>${esc(l.titolo)}</b><span>${esc(l.sotto||'')}</span></a>`).join('')}</div>
    ${soc.length?`<div class="chips" style="margin-top:16px;justify-content:center">${soc.map(x=>`<a class="btn gh" href="${esc(CH[x[0]])}">${x[1]}</a>`).join('')}</div>`:''}</section>
   <div class="tiles">
@@ -465,13 +463,6 @@ PG.home=()=>{
    <section class="card">${H('News e articoli')}<div class="nl">${NW.slice(0,3).map(n=>`<a href="#articolo-${esc(n.id)}"><b>${esc(n.titolo)}</b><br><span class="mu">${dt(n.data)} · ${n.tipo}</span></a>`).join('')}</div></section>
   </div>`;
 };
-function slGo(i){
-  const E=[...document.querySelectorAll('.sl')];if(!E.length)return;let n=((i%3)+3)%3,g=0;
-  while(E[n]&&!E[n].innerHTML.trim()&&g++<3)n=(n+(i<S.sl?2:1))%3;
-  S.sl=n;E.forEach((e,j)=>{e.classList.toggle('on',j===n);e.setAttribute('aria-hidden',j!==n);e.inert=j!==n});
-  document.querySelectorAll('[data-a=sl]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===n));
-}
-setInterval(()=>{const c=document.querySelector('.slw');if(!c||S.slp||document.hidden||c.matches(':hover')||c.contains(document.activeElement)||window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;slGo(S.sl+1)},7000);
 PG.live=()=>{
   const ch=(CH.twitch.replace(/\/+$/,'').split('/').pop()||'').toLowerCase(),host=location.hostname,ok=location.protocol==='https:'&&host&&!/claude|anthropic/.test(host),pl=C.prossimaLive,r=R[0];
   const off=(t,c)=>`<div class="ph" style="${c?'min-height:220px;height:100%':'aspect-ratio:16/9'}">${t}</div>`;
@@ -604,6 +595,7 @@ const thumb=x=>x.thumb?`<img src="${esc(x.thumb)}" alt="" loading="lazy" referre
 PG.video=()=>{
   loadVideo();
   const X=vdata(),V=X.V,L=X.L,v=L[S.vs]||L[0],d=x=>esc(x||'—'),yt=esc(CH.youtube);
+  const PL=(VD.d&&VD.d.playlist)||[],PR=Object.keys(V.preferiti&&typeof V.preferiti==='object'?V.preferiti:{});
   const emb=v.id&&location.protocol==='https:'&&!/claude|anthropic/.test(location.hostname);
   const tabs=[['video','Video'],['preferiti','Preferiti'],['playlist','Playlist'],['iscritti','Iscritti'],['commenti','Commenti']];
   const comm=`<h3>Commenti del canale</h3><div class="bx">${board('ytc',{empty:'Nessun commento: lascia il primo.',label:'Commento',btn:'Commenta'})}</div>`;
@@ -611,7 +603,10 @@ PG.video=()=>{
      :`<a class="scr" href="${esc(v.link)||yt}" style="position:relative;overflow:hidden">${thumb(v)}<span style="position:relative;background:#000a;padding:6px 12px">▶ ${esc(v.titolo)}<br><small>si apre su YouTube</small></span></a>
      <div class="ctl" aria-hidden="true">▶ <i></i> ${d(v.durata)} 🔊</div>`}<p style="margin-top:8px"><b>${esc(v.titolo)}</b></p><p><span class="stars" aria-label="Valutazione">★★★★☆</span> · Visualizzazioni: ${d(v.viste)} · Aggiunto: ${d(v.data)}</p><p style="margin-top:6px">${esc(v.descrizione||'')}</p></div>
      <h3>${VD.d?'Ultimi video':'Tutti i video'} (${L.length})</h3><div class="bx"><div class="vgr">${L.map((x,i)=>`<div><button data-a="vs" data-v="${i}" class="th" style="width:100%;cursor:pointer;overflow:hidden" aria-label="Metti in primo piano: ${esc(x.titolo)}">▶${thumb(x)}${x.durata?`<span>${esc(x.durata)}</span>`:''}</button><button class="lk" data-a="vs" data-v="${i}" style="padding:4px 0;text-align:left;font-weight:bold">${esc(x.titolo)}</button><div style="color:#666">${d(x.data)}<br>${d(x.viste)} visualizzazioni</div></div>`).join('')}</div></div>`
-   :S.vt==='commenti'?comm:`<div class="bx"><p>Questa sezione si riempie da sola quando lo script legge i dati del canale YouTube.</p></div>`;
+   :S.vt==='commenti'?comm
+   :S.vt==='playlist'?`<h3>Playlist (${PL.length})</h3><div class="bx">${PL.length?`<div class="vgr">${PL.map(x=>`<div><a class="th" href="https://www.youtube.com/playlist?list=${esc(x.id)}" style="overflow:hidden;text-decoration:none" aria-label="Playlist: ${esc(x.titolo)}">▶${thumb({thumb:x.anteprima})}<span>${x.video} video</span></a><a href="https://www.youtube.com/playlist?list=${esc(x.id)}" style="display:block;padding:4px 0;font-weight:bold">${esc(x.titolo)}</a></div>`).join('')}</div>`:'<p>Nessuna playlist da mostrare, per ora.</p>'}</div>`
+   :S.vt==='iscritti'?`<h3>Iscritti</h3><div class="bx"><p style="font-size:28px;font-weight:bold">${d(V.iscritti)}</p><p>iscritti al canale</p><p style="margin-top:10px"><a class="sub" href="${yt}">Iscriviti anche tu</a></p></div>`
+   :`<h3>Preferiti (${PR.length})</h3><div class="bx">${PR.length?`<ul style="margin:0;padding-left:18px">${PR.map(k=>`<li style="padding:3px 0"><a href="${esc(V.preferiti[k])}">${esc(k)}</a></li>`).join('')}</ul>`:'<p>Nessun preferito, per ora.</p>'}</div>`;
   return `<section class="yt"><h1>Canale di ${esc(CH.youtubeNome)}</h1>
    <div class="tabs" role="tablist">${tabs.map(t=>`<button role="tab" data-a="vt" data-v="${t[0]}" aria-selected="${S.vt===t[0]}">${t[1]}</button>`).join('')}</div>
    <div class="cols"><div>
@@ -745,7 +740,7 @@ const ACT={
   sxgo(){const x=S.sx;if(!x||!CT.api)return;x.out={msg:'Preparo lo scambio…',wait:true};render(false);
     jsonp(CT.api+'?api=scambio&u='+encodeURIComponent(cNick())+'&set='+encodeURIComponent(x.set)+'&scelte='+encodeURIComponent(JSON.stringify(x.sel)),r=>{if(S.sx!==x)return;
       x.out=!r?{msg:'Non riesco a preparare lo scambio in questo momento: riprova.'}:r.ok?{cmd:((CA.d&&CA.d.cmd)||'!scambia')+' '+r.codice,min:r.minuti}:{msg:r.errore||'Scambio non riuscito.'};render(false)})},
-  sxcopy(){const t=S.sx&&S.sx.out&&S.sx.out.cmd;if(!t)return;const no=()=>$('sxok').textContent='Selezionalo e copialo a mano.';try{navigator.clipboard.writeText(t).then(()=>$('sxok').textContent='Copiato.',no)}catch(e){no()}},sl(v){slGo(+v);if(!S.slp){S.slp=true;render(false)}},sln(v){slGo(S.sl+ +v)},slp(){S.slp=!S.slp;render(false)},vt(v){S.vt=v;render(false)},vpick(v){S.vs=+v;S.vt='video'},vs(v){S.vs=+v;S.vt='video';render()},
+  sxcopy(){const t=S.sx&&S.sx.out&&S.sx.out.cmd;if(!t)return;const no=()=>$('sxok').textContent='Selezionalo e copialo a mano.';try{navigator.clipboard.writeText(t).then(()=>$('sxok').textContent='Copiato.',no)}catch(e){no()}},vt(v){S.vt=v;render(false)},vpick(v){S.vs=+v;S.vt='video'},vs(v){S.vs=+v;S.vt='video';render()},
   ring(v){const n=amici().length;S.ring=+v?(S.ring+ +v+n)%n:Math.floor(Math.random()*n);render(false)},
   copy(){const t=$('lcode');const ok=()=>$('cpok').textContent='Copiato.';try{navigator.clipboard.writeText(t.value).then(ok,()=>{t.select();$('cpok').textContent='Seleziona e copia a mano.'})}catch(e){t.select();$('cpok').textContent='Seleziona e copia a mano.'}},
   play(){if(P.on){P.on=false;pStop();pUI()}else pStart()},
