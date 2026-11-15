@@ -579,44 +579,48 @@ function gviz(tab,cb){
 const tRows=t=>{const Hd=t.cols.map(c=>String(c.label||'').trim().toLowerCase());return t.rows.map(r=>{const o={};(r.c||[]).forEach((c,i)=>{if(Hd[i])o[Hd[i]]=c&&c.v!=null?c.v:''});return o})};
 const pick=(o,keys)=>{for(const x of keys)for(const k in o)if((x[0]==='='?k===x.slice(1):k.includes(x))&&o[k]!=='')return o[k];return ''};
 const norm=v=>String(v).trim().toUpperCase();
+const drv=u=>{const m=/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?.*?id=)([\w-]{20,})/.exec(String(u||''));return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w600':String(u||'')};
+const cKey=(set,c)=>c.id?norm(c.id):norm(set.id)+'-'+c.n;
 function loadCarte(){
   if(!FG.id||CL.busy)return;CL.busy=true;
-  gviz(FG.schedaCarte,tc=>{
+  const go=ts=>gviz(FG.schedaCarte,tc=>{
     if(!tc){CL.busy=false;CL.st='err';return carteDone()}
-    const sets=[],by={},look={};
-    tRows(tc).forEach(o=>{const sid=norm(pick(o,['=set','id set','codice set','set'])||'SET'),nome=String(pick(o,['=nome','nome carta','=carta','titolo','nome'])),n=Number(pick(o,['numero','=n','=num','n°','=#']))||0;if(!nome&&!n)return;
-      let st=by[sid];if(!st){const old=C.carte.set.find(x=>norm(x.id)===sid);st=by[sid]={id:sid,nome:String(pick(o,['nome set','nome del set']))||(old&&old.nome)||sid,carte:[]};sets.push(st)}
-      const c={n:n||st.carte.length+1,nome,rarita:String(pick(o,['rarit'])).trim(),img:String(pick(o,['immagine','img','url','link']))};st.carte.push(c);
-      const key=sid+'-'+c.n;look[key]=key;const id=pick(o,['=id','codice','id carta']);if(id!=='')look[norm(id)]=key;if(nome)look[norm(nome)]=key});
+    const sets=[],by={},look={},sn={};
+    if(ts)tRows(ts).forEach(o=>{const i=pick(o,['=id','=set','codice']);if(i!=='')sn[norm(i)]=String(pick(o,['=nome','nome'])).replace(/^.*\s-\s/,'').trim()});
+    tRows(tc).forEach(o=>{if(/^(no|n|false|0)$/i.test(String(pick(o,['attiv'])).trim()))return;const sid=norm(pick(o,['=set','id set','codice set','set'])||'SET'),nome=String(pick(o,['=nome','nome carta','=carta','titolo','nome'])),n=Number(pick(o,['numero','=n','=num','n°','=#']))||0;if(!nome&&!n)return;
+      let st=by[sid];if(!st){const old=C.carte.set.find(x=>norm(x.id)===sid);st=by[sid]={id:sid,nome:sn[sid]||String(pick(o,['nome set','nome del set']))||(old&&old.nome)||sid,carte:[]};sets.push(st)}
+      const id=pick(o,['=id','codice','id carta']),c={n:n||st.carte.length+1,id:id===''?'':String(id).trim(),nome:nome.trim(),rarita:String(pick(o,['rarit'])).trim(),img:String(pick(o,['immagine','img','url','link'])),desc:String(pick(o,['descrizione','desc'])).trim()};st.carte.push(c);
+      const key=cKey(st,c);look[key]=key;look[sid+'-'+c.n]=key;if(nome)look[norm(nome)]=key});
     sets.forEach(st=>st.carte.sort((a,b)=>a.n-b.n));
     if(sets.length){CT.set=sets;if(S.cs>=sets.length)S.cs=0}
     gviz(FG.schedaCollezioni,tu=>{
       CL.busy=false;
-      if(tu){const col={};tRows(tu).forEach(o=>{const u=String(pick(o,['utente','nick','user','viewer','spettatore'])).trim().toLowerCase();if(!u)return;
-          const set=pick(o,['=set','id set','codice set','set']),num=pick(o,['numero','=n','=num','n°']),raw=pick(o,['id carta','codice','carta','card','=id']);
+      if(tu){const col={};tRows(tu).forEach(o=>{const u=String(pick(o,['=login','login','utente','nick','username','viewer','spettatore'])).trim().toLowerCase();if(!u)return;
+          const set=pick(o,['=set','id set','codice set','set']),num=pick(o,['numero','=n','=num','n°']),raw=pick(o,['cartaid','id carta','codice','carta','card','=id']);
           const key=look[norm(raw)]||(set!==''&&num!==''?look[norm(set)+'-'+Number(num)]:'');if(!key)return;
           const q=Number(pick(o,['quantit','qty','copie']))||1;(col[u]=col[u]||{})[key]=(col[u][key]||0)+q});
         CT.collezioni=col}
       CL.st=tu?'ok':'err';CL.at=Date.now();carteDone();
     });
   });
+  FG.schedaSet?gviz(FG.schedaSet,go):go(null);
 }
 function carteDone(){if(route().p==='carte'&&!(document.activeElement&&document.activeElement.id==='cnick'))render(false)}
 setInterval(()=>{if(FG.id&&route().p==='carte'&&!document.hidden)loadCarte()},Math.max(20,FG.ogniSecondi||60)*1000);
-const CT=C.carte,RAR={'Comune':'#b9b3c9','Non comune':'#01cdfe','Rara':'#6a2bd9','Leggendaria':'#ffb300'};
+const CT=C.carte,RAR={'Comune':'#b9b3c9','Non comune':'#2fbf71','Rara':'#2b7bff','Leggendaria':'#ffb300'};
 PG.carte=()=>{
   const set=CT.set[S.cs]||CT.set[0],nick=S.cn.trim().toLowerCase(),hit=nick&&Object.keys(CT.collezioni).find(k=>k.toLowerCase()===nick),own=hit?CT.collezioni[hit]:null;
-  const q=c=>own?(own[set.id+'-'+c.n]||0):0,L=set.carte.filter(c=>!S.cr||c.rarita===S.cr),have=set.carte.filter(c=>q(c)).length,linked=Object.keys(CT.collezioni).length>0;
+  const q=c=>own?(own[cKey(set,c)]||0):0,L=set.carte.filter(c=>!S.cr||c.rarita===S.cr),have=set.carte.filter(c=>q(c)).length,linked=Object.keys(CT.collezioni).length>0;
   if(FG.id&&Date.now()-CL.at>20000)setTimeout(loadCarte,0);
-  const stato=CL.st==='off'?'Foglio delle carte non ancora collegato: quelle qui sotto sono segnaposto.':CL.st==='load'?'Leggo il foglio delle carte…':CL.st==='ok'?'Aggiornato dal foglio alle '+new Date(CL.at).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})+' · si aggiorna da solo ogni '+Math.max(20,FG.ogniSecondi||60)+' secondi.':'Non riesco a leggere il foglio in questo momento: mostro gli ultimi dati disponibili.';
+  const stato=CL.st==='off'?'Foglio delle carte non collegato.':CL.st==='load'?'Leggo il foglio delle carte…':CL.st==='ok'?'Aggiornato dal foglio alle '+new Date(CL.at).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})+' · si aggiorna da solo ogni '+Math.max(20,FG.ogniSecondi||60)+' secondi.':'Non riesco a leggere il foglio in questo momento: mostro gli ultimi dati disponibili.';
   const chip=(a,v,t,on)=>`<button class="chip" data-a="${a}" data-v="${esc(v)}" aria-pressed="${on}">${t}</button>`;
   return `<section class="card"><div class="row" style="align-items:center">${CT.logo?`<img src="${esc(CT.logo)}" alt="" style="width:96px;image-rendering:pixelated">`:''}<div style="flex:1 1 260px"><h1 class="pt">${esc(CT.nome)}</h1>
     <p class="mu" style="margin-top:6px">Le carte del canale (${esc(CT.sigla)}): si trovano nei pacchetti riscattati in live con i punti canale.</p></div><a class="btn mag" href="#live">Vai in live a spacchettare</a></div><p class="mu sm" style="margin-top:10px" role="status">${stato}</p></section>
   <section class="card">${H('La mia collezione')}<form class="bform" data-cn><div class="fl w"><label for="cnick">Il tuo nick Twitch</label><input class="in" id="cnick" name="nick" maxlength="25" value="${esc(S.cn)}" autocomplete="off"></div><button class="btn" style="flex:0 1 130px">Mostra</button></form>
-   <p style="margin-top:10px" role="status">${!nick?'<span class="mu">Scrivi il nick per vedere quali carte hai e quali ti mancano.</span>':!linked?'Le collezioni non sono ancora collegate al sito.':own?`<b>${esc(hit)}</b>: ${have} carte su ${set.carte.length} del ${esc(set.nome)} (${Math.round(have/set.carte.length*100)}%).`:`Nessuna carta trovata per <b>${esc(S.cn)}</b>.`}</p></section>
+   <p style="margin-top:10px" role="status">${!nick?'<span class="mu">Scrivi il nick per vedere quali carte hai e quali ti mancano.</span>':!linked?(CL.st==='load'?'Sto leggendo le collezioni…':'Le collezioni non sono raggiungibili in questo momento: riprova tra poco.'):own?`<b>${esc(hit)}</b>: ${have} carte su ${set.carte.length} del ${esc(set.nome)} (${Math.round(have/set.carte.length*100)}%).`:`Nessuna carta trovata per <b>${esc(S.cn)}</b>.`}</p></section>
   <section class="card">${H('Album')}<div class="chips">${CT.set.map((x,i)=>chip('cs',i,esc(x.nome)+' · '+x.carte.length,S.cs===i)).join('')}</div>
    <div class="chips" style="margin:10px 0 18px">${chip('cr','','Tutte le rarità',!S.cr)}${Object.keys(RAR).map(r=>chip('cr',r,`<i class="rd" style="--rc:${RAR[r]}"></i>${r}`,S.cr===r)).join('')}</div>
-   ${L.length?`<div class="tcg">${L.map(c=>`<div class="tc${own&&!q(c)?' miss':''}" style="--rc:${RAR[c.rarita]||'#b9b3c9'}"><span class="ti">${c.img?`<img src="${esc(c.img)}" alt="">`:'N° '+String(c.n).padStart(2,'0')}</span><b>${esc(c.nome||'Carta '+String(c.n).padStart(2,'0'))}</b><span class="sm mu">${esc(c.rarita||'rarità da inserire')}</span>${q(c)>1?`<span class="qt">×${q(c)}</span>`:''}</div>`).join('')}</div>`:'<p class="mu">Nessuna carta con questa rarità (per ora).</p>'}</section>`;
+   ${L.length?`<div class="tcg">${L.map(c=>`<div class="tc${own&&!q(c)?' miss':''}" style="--rc:${RAR[c.rarita]||'#b9b3c9'}"><span class="ti">${c.img?`<img src="${esc(drv(c.img))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith('N° ${String(c.n).padStart(2,'0')}')">`:'N° '+String(c.n).padStart(2,'0')}</span><b>${esc(c.nome||'Carta '+String(c.n).padStart(2,'0'))}</b><span class="sm" style="color:var(--mu)"><i class="rd" style="--rc:${RAR[c.rarita]||'#b9b3c9'}"></i>${esc(c.rarita||'rarità da inserire')}</span>${c.desc?`<span class="sm mu">${esc(c.desc)}</span>`:''}${q(c)>1?`<span class="qt">×${q(c)}</span>`:''}</div>`).join('')}</div>`:'<p class="mu">Nessuna carta con questa rarità (per ora).</p>'}</section>`;
 };
 PG.chat=()=>`<section class="card"><h1 class="pt">Chat del sito</h1><div style="margin:12px 0">${LOCALNOTE}</div>${board('chat',{tall:1,empty:'Ancora nessun messaggio: rompi il ghiaccio.'})}</section>
  <section class="card">${H('Guestbook')}<p class="mu" style="margin-bottom:12px">Passi di qui per la prima volta? Lascia una firma.</p>${board('guestbook',{empty:'Nessuna firma, per ora.',label:'Firma',btn:'Firma'})}</section>`;
