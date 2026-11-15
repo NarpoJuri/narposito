@@ -137,6 +137,10 @@ dl.sc{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0}dl.sc dt
 .sess{list-style:none;margin:0;padding:0}
 .sess li{display:grid;grid-template-columns:100px 1fr auto;gap:4px 14px;padding:10px 0;border-bottom:1px solid var(--line);align-items:baseline}
 .sess li:last-child{border:0}
+.tgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tgc{display:inline-flex;align-items:center;min-height:28px;padding:1px 11px;border-radius:999px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
+.tgc:hover{border-color:var(--vio);color:var(--vio)}
+.tgc.t-rubriche{background:#efe4ff}.tgc.t-ospiti{background:#ffe3f3}.tgc.t-gioco{background:#dff8ff}.tgc.t-console{background:#fff}
 /* weekly */
 .edi{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
 .shelf{display:flex;flex-wrap:wrap;gap:18px;padding:0 4px 14px;border-bottom:10px solid var(--line);border-radius:0 0 6px 6px;margin-bottom:22px}
@@ -516,6 +520,13 @@ function dimAgg(d){if(DC[d])return DC[d];const m=new Map();for(const r of R)for(
   for(const x of r[3])if(d!=='console'||GI[x].c.includes(k))e.g.set(x,(e.g.get(x)||0)+1)}
   return DC[d]=[...m.values()].sort(d==='anni'?(a,b)=>b.k.localeCompare(a.k):(a,b)=>b.rows.length-a.rows.length)}
 const avSpan=k=>{const g=D.GUEST[k]||{};return `<span class="fa" style="--hu:${hue(k)}"${g.i?` data-av="${esc(g.i)}" data-t="${esc(g.t||'jpeg')}"`:''}>${esc(k[0].toUpperCase())}</span>`};
+/* etichette cliccabili: portano alla sezione dedicata del backlog (o alla scheda del gioco) */
+const tgD=(d,k)=>`<button class="tgc t-${d}" data-a="dim" data-d="${d}" data-v="${esc(k)}">${esc(k)}</button>`;
+const tgG=k=>GI[k]?`<a class="tgc t-gioco" href="#gioco-${GI[k].slug}">${esc(k)}</a>`:'';
+function sessRow(r,skip,extra){
+  const t=[...r[4].filter(x=>!(skip.d==='rubriche'&&skip.k===x)).map(x=>tgD('rubriche',x)),...r[3].filter(x=>x!==skip.g).map(tgG),...r[5].filter(x=>!(skip.d==='ospiti'&&skip.k===x)).map(x=>tgD('ospiti',x))].join('');
+  return `<li><span class="b">${dt(r[0])}</span><span>${esc(r[2]||'(senza titolo)')}${t?`<span class="tgs">${t}</span>`:''}</span><span class="mu sm">${dur(r[1])}${extra||''}</span></li>`;
+}
 function dimView(d){
   const A=dimAgg(d),e=S.bk&&A.find(x=>x.k===S.bk);
   if(d==='ospiti')setTimeout(needAv,0);
@@ -528,7 +539,7 @@ function dimView(d){
    ${d==='ospiti'&&gu.l?`<a class="btn gh" href="${esc(gu.l)}" style="margin-top:10px">Vai al canale</a>`:''}
    <div class="stats"><div><b>${nf(e.rows.length)}</b>live</div><div><b>${nf(Math.round(min/60))}</b>ore in diretta</div><div><b>${nf(gs.length)}</b>giochi</div><div><b>${e.rows[e.rows.length-1][0].slice(0,4)}–${e.rows[0][0].slice(0,4)}</b>periodo</div></div></section>
   ${gs.length?`<section class="card">${H('Giochi')}<div class="grid">${gs.map(([k,n])=>gcard(GI[k],n)).join('')}</div></section>`:''}
-  <section class="card">${H('Live')}<ol class="sess">${e.rows.slice(0,S.bl).map(r=>`<li><span class="b">${dt(r[0])}</span><span>${esc(r[2]||'(senza titolo)')}</span><span class="mu sm">${dur(r[1])}</span></li>`).join('')}</ol>
+  <section class="card">${H('Live')}<ol class="sess">${e.rows.slice(0,S.bl).map(r=>sessRow(r,{d,k:e.k})).join('')}</ol>
    ${e.rows.length>S.bl?`<div class="pg"><button class="btn gh" data-a="blmore">Mostra altre (${e.rows.length-S.bl})</button></div>`:''}</section>`;
 }
 function renderBL(){
@@ -542,13 +553,13 @@ function renderBL(){
    :'<p class="mu">Nessun gioco con questi filtri. Prova a toglierne uno.</p>';
 }
 function pgGame(g){
-  const m=g.m,row=(l,v)=>v?`<dt>${l}</dt><dd>${esc(v)}</dd>`:'';
+  const m=g.m,row=(l,v)=>v?`<dt>${l}</dt><dd>${esc(v)}</dd>`:'',oc={};g.s.forEach(r=>r[5].forEach(x=>oc[x]=(oc[x]||0)+1));const osp=Object.keys(oc).sort((a,b)=>oc[b]-oc[a]);
   return `<a class="lk" href="#backlog">← torna al backlog</a>
   <section class="card game"><div class="gc">${cover(g)}</div><div class="gi"><h1 class="pt">${esc(g.k)}</h1>${m.n&&m.n.toLowerCase()!==g.k.toLowerCase()?`<p class="mu">${esc(m.n)}</p>`:''}
    <div>${stB(g)||'<span class="st n">stato non indicato</span>'}</div>
-   <dl class="sc">${row('Console',g.c.join(', '))}${row('Anno',m.y)}${row('Genere',(m.g||[]).join(', '))}${row('Sviluppo',(m.d||[]).join(', '))}${row('Rubrica',g.rubs.slice(0,3).join(', '))}${row('In live',g.n+(g.n===1?' sessione':' sessioni')+' · '+dur(g.min)+' · dal '+dt(g.first)+(g.n>1?' al '+dt(g.last):''))}</dl>
+   <dl class="sc">${g.c.length?`<dt>Console</dt><dd><span class="tgs" style="margin:0">${g.c.map(x=>tgD('console',x)).join('')}</span></dd>`:''}${row('Anno',m.y)}${row('Genere',(m.g||[]).join(', '))}${row('Sviluppo',(m.d||[]).join(', '))}${g.rubs.length?`<dt>Rubriche</dt><dd><span class="tgs" style="margin:0">${g.rubs.map(x=>tgD('rubriche',x)).join('')}</span></dd>`:''}${osp.length?`<dt>Ospiti</dt><dd><span class="tgs" style="margin:0">${osp.map(x=>tgD('ospiti',x)).join('')}</span></dd>`:''}${row('In live',g.n+(g.n===1?' sessione':' sessioni')+' · '+dur(g.min)+' · dal '+dt(g.first)+(g.n>1?' al '+dt(g.last):''))}</dl>
    <p class="mu sm">Copertina e dati da IGDB.</p></div></section>
-  <section class="card">${H('Sessioni')}<ol class="sess">${g.s.map(r=>`<li><span class="b">${dt(r[0])}</span><span>${esc(r[2]||'(senza titolo)')}</span><span class="mu sm">${dur(r[1])}${C.repliche[r[0]]?` · <a href="${esc(C.repliche[r[0]])}">replica</a>`:''}</span></li>`).join('')}</ol></section>`;
+  <section class="card">${H('Sessioni')}<ol class="sess">${g.s.map(r=>sessRow(r,{g:g.k},C.repliche[r[0]]?` · <a href="${esc(C.repliche[r[0]])}">replica</a>`:'')).join('')}</ol></section>`;
 }
 
 PG.weekly=()=>{
@@ -741,7 +752,7 @@ const ACT={
   pg(v){S.page+=+v;renderBL();$('blres').scrollIntoView({block:'start'})},
   nf(v){S.nf=v;S.np=0;render(false)},nt(v){S.nt=S.nt===v?'':v;S.nm='';S.np=0;if(route().p!=='news'||location.hash.startsWith('#articolo'))location.hash='news';else render(false)},
   nm(v){S.nm=v;S.nt='';S.np=0;render(false)},nclear(){S.nt=S.nm='';render(false)},npg(v){S.np+=+v;render()},
-  bt(v){S.bt=v;S.bk='';render(false)},bk(v){S.bk=v;S.bl=30;render(false);$('bltabs').scrollIntoView({block:'start'})},blmore(){S.bl+=30;render(false)},cr(v){S.cr=v;render(false)},
+  bt(v){S.bt=v;S.bk='';render(false)},dim(v,b){S.bt=b.dataset.d;S.bk=v;S.bl=30;if(location.hash==='#backlog')render();else location.hash='backlog'},bk(v){S.bk=v;S.bl=30;render(false);$('bltabs').scrollIntoView({block:'start'})},blmore(){S.bl+=30;render(false)},cr(v){S.cr=v;render(false)},
   sxon(v){S.sx=S.sx&&S.sx.set===v?null:{set:v,sel:{},out:null};render(false)},
   dsel(v,b){if(!S.sx)return;const max=+b.dataset.max;S.sx.sel[v]=((S.sx.sel[v]||0)+1)%(max+1);if(!S.sx.sel[v])delete S.sx.sel[v];S.sx.out=null;render(false)},
   sxgo(){const x=S.sx;if(!x||!CT.api)return;x.out={msg:'Preparo lo scambio…',wait:true};render(false);
