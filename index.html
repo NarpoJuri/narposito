@@ -280,6 +280,9 @@ const wide=()=>window.matchMedia('(min-width:761px)').matches;
 /* ---------- giochi: stesso database dello Storico Live ---------- */
 const R=D.R; // [data, minuti, titolo, giochi[], rubriche[], ospiti[]]
 const G=[],GI={},SL={};
+/* colonna "Finito" della scheda Giochi: vince su quello che il sito deduce da solo */
+function finSheet(v){const t=String(v==null?'':v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+  return /^(si|s|finito|completato|terminato|x|yes|true|1)$/.test(t)?'finito':/^in corso/.test(t)?'in corso':/^(abbandonato|droppato|mollato)$/.test(t)?'abbandonato':/^(no|n|non finito|false|0)$/.test(t)?'non finito':''}
 const FIN=/\bfinal[ei]\b|titoli di coda|\bending\b|\bla fine\b|conclusione|ultima puntata|ultimo episodio|epilogo/i;
 for(const r of R)r[3]=r[3].filter(k=>/[\p{L}\p{N}]/u.test(k));
 for(const r of R)for(const k of r[3]){let g=GI[k];if(!g){g=GI[k]={k,s:[]};G.push(g)}g.s.push(r)}
@@ -290,9 +293,9 @@ for(const g of G){
   g.m=D.META[g.k]||{};g.c=(D.CONS[g.k]||[]).filter(x=>x!=='Non indicata');
   const rc={};g.s.forEach(r=>r[4].forEach(x=>rc[x]=(rc[x]||0)+1));
   g.rubs=Object.keys(rc).sort((a,b)=>rc[b]-rc[a]);g.rub=g.rubs[0]||'';
-  g.st=C.stati[g.k]||(g.s.some(r=>FIN.test(r[2])&&r[3].length<=2)?'finito':(g.n>1&&g.last>=RECENT?'in corso':''));
+  g.st=C.stati[g.k]||finSheet(D.FIN&&D.FIN[g.k])||(g.s.some(r=>FIN.test(r[2])&&r[3].length<=2)?'finito':(g.n>1&&g.last>=RECENT?'in corso':''));
 }
-const STL={finito:['f','FINITO'],'in corso':['c','IN CORSO'],abbandonato:['a','ABBANDONATO']};
+const STL={finito:['f','FINITO'],'in corso':['c','IN CORSO'],abbandonato:['a','ABBANDONATO'],'non finito':['a','NON FINITO']};
 const stB=g=>g.st&&STL[g.st]?`<span class="st ${STL[g.st][0]}">${STL[g.st][1]}</span>`:'';
 const YEARS=new Date(TODAY).getFullYear()-CH.annoInizio;
 function cover(g){
@@ -499,7 +502,7 @@ PG.backlog=()=>{
    ${sel('fy','Anno di uscita','Tutti',[...dd].sort().map(y=>opt(y,'Anni '+y,S.fy)).join(''))}
    ${sel('fc','Console','Tutte',byMk(Object.keys(cc),(m,xs)=>`<optgroup label="${esc(m)}">${xs.map(c=>opt(c,c+' ('+cc[c]+')',S.fc)).join('')}</optgroup>`))}
    ${sel('fr','Rubrica','Tutte',Object.keys(rr).sort((a,b)=>rr[b]-rr[a]).map(c=>opt(c,c+' ('+rr[c]+')',S.fr)).join(''))}
-   ${sel('fs','Stato','Tutti',opt('finito','Finito',S.fs)+opt('in corso','In corso',S.fs)+opt('abbandonato','Abbandonato',S.fs)+opt('n','Non indicato',S.fs))}
+   ${sel('fs','Stato','Tutti',opt('finito','Finito',S.fs)+opt('in corso','In corso',S.fs)+opt('non finito','Non finito',S.fs)+opt('abbandonato','Abbandonato',S.fs)+opt('n','Non indicato',S.fs))}
    ${sel('sort','Ordina','Più giocati',opt('l','Più recenti',S.sort)+opt('k','A–Z',S.sort))}
    </div></details>
    <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:8px 0 16px"><span id="blc" class="mu" role="status"></span><button class="btn mag" data-a="rnd" style="margin-left:auto">Gioco a caso</button></div>
