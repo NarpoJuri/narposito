@@ -1,4 +1,4 @@
-/* CONTENUTI DEL SITO - generato con editor.html il 15/11/2026, 23:02:33.
+/* CONTENUTI DEL SITO - generato con editor.html il 16/11/2026, 00:11:10.
    Si modifica dall'editor (narpojuri.github.io/editor.html) oppure a mano. */
 window.NJC = {
   "canale": {
@@ -9,10 +9,10 @@ window.NJC = {
     "bio": "Appassionato di retrogaming tra giochi dimenticati e dimenticabili.",
     "youtube": "https://www.youtube.com/@NarpoTeca",
     "youtubeNome": "NarpoTeca",
-    "tiktok": "",
+    "tiktok": "https://www.tiktok.com/@narpojuri",
     "instagram": "https://www.instagram.com/narpo_juri/",
     "x": "https://x.com/narpo_juri",
-    "bluesky": "",
+    "bluesky": "https://bsky.app/profile/narpojuri.bsky.social",
     "sito": "https://narpojuri.github.io",
     "mascotte": "img/tamacast.png"
   },
@@ -62,7 +62,9 @@ window.NJC = {
       "n": 2,
       "data": "2026-11-15",
       "sommario": [
-        "Puroresu Giapponese!"
+        "- Puroresu Giapponese!",
+        "- Crash Bash!",
+        "- Beyblade RPG"
       ],
       "pdf": true
     },
@@ -80,130 +82,32 @@ window.NJC = {
       "id": "sito-online",
       "tipo": "news",
       "data": "2026-11-15",
-      "autore": "Narpo_Juri",
-      "titolo": "Il sito del canale prende forma (esempio)",
-      "anteprima": "Backlog, Weekly, video e chat in un posto solo. Questo testo è un segnaposto.",
+      "autore": "Narpo",
+      "titolo": "Benvenuti al NarpoSito! ",
+      "anteprima": "Una piccola introduzione al sito. ",
       "testo": [
-        "Questo è un testo di esempio: sostituiscilo con la tua news.",
-        "Ogni paragrafo è una riga di questo elenco."
+        "Ebbene si.",
+        "Eccoci qua a questo sito.",
+        "Era da anni che volevo creare uno spazio riassuntivo dedicato al canale, storia e quant'altro.",
+        "Spero vi possa piacere!"
       ],
       "foto": [
         {
-          "src": "",
-          "didascalia": "Didascalia della foto (esempio)"
+          "src": "img/CopertinaYoutube_Narpo_1080.png",
+          "didascalia": "La copertina"
         }
       ],
       "argomenti": [
         "sito"
       ]
-    },
-    {
-      "id": "articolo-esempio",
-      "tipo": "articolo",
-      "data": "2026-11-10",
-      "autore": "Narpo_Juri",
-      "titolo": "Titolo di un articolo lungo (esempio)",
-      "anteprima": "Un articolo ha testo più lungo, foto con didascalia e una galleria.",
-      "testo": [
-        "Primo paragrafo di esempio.",
-        "Secondo paragrafo di esempio.",
-        "Terzo paragrafo di esempio."
-      ],
-      "foto": [
-        {
-          "src": "",
-          "didascalia": "Foto principale (esempio)"
-        },
-        {
-          "src": "",
-          "didascalia": "Galleria 1"
-        },
-        {
-          "src": "",
-          "didascalia": "Galleria 2"
-        },
-        {
-          "src": "",
-          "didascalia": "Galleria 3"
-        }
-      ],
-      "argomenti": [
-        "retrogaming",
-        "traduzioni"
-      ]
-    },
-    {
-      "id": "news-esempio-2",
-      "tipo": "news",
-      "data": "2026-10-28",
-      "autore": "Narpo_Juri",
-      "titolo": "Titolo di una news (esempio)",
-      "anteprima": "Due righe di anteprima della news.",
-      "testo": [
-        "Testo di esempio."
-      ],
-      "foto": [],
-      "argomenti": [
-        "live"
-      ]
-    },
-    {
-      "id": "articolo-esempio-2",
-      "tipo": "articolo",
-      "data": "2026-10-12",
-      "autore": "Narpo_Juri",
-      "titolo": "Un altro articolo (esempio)",
-      "anteprima": "Due righe di anteprima dell’articolo.",
-      "testo": [
-        "Testo di esempio."
-      ],
-      "foto": [
-        {
-          "src": "",
-          "didascalia": "Foto (esempio)"
-        }
-      ],
-      "argomenti": [
-        "retrogaming"
-      ]
-    },
-    {
-      "id": "news-esempio-3",
-      "tipo": "news",
-      "data": "2026-09-30",
-      "autore": "Narpo_Juri",
-      "titolo": "Ancora una news (esempio)",
-      "anteprima": "Due righe di anteprima della news.",
-      "testo": [
-        "Testo di esempio."
-      ],
-      "foto": [],
-      "argomenti": [
-        "weekly"
-      ]
-    },
-    {
-      "id": "news-esempio-4",
-      "tipo": "news",
-      "data": "2026-09-14",
-      "autore": "Narpo_Juri",
-      "titolo": "News più vecchia (esempio)",
-      "anteprima": "Serve a far vedere le pagine “più recenti / più vecchie”.",
-      "testo": [
-        "Testo di esempio."
-      ],
-      "foto": [],
-      "argomenti": [
-        "live"
-      ]
     }
   ],
   "video": {
-    "iscrittoDal": "",
-    "caricati": "",
-    "iscritti": "",
-    "visualizzazioni": "",
-    "descrizione": "Descrizione del canale (esempio): repliche, speciali e spezzoni delle live.",
+    "iscrittoDal": "23 feb 2025",
+    "caricati": "24",
+    "iscritti": "59",
+    "visualizzazioni": "Tante",
+    "descrizione": "Ciao, sono Narpo.\nHo deciso di aprire un canale per parlare delle mie passioni... a modo mio! \nIn questo canale tratto retrogaming, JRPG, giochi persi in Giappone e giochi dimenticabili. \nPrendete una tazza di caffè e...buona visione! ",
     "lista": [
       {
         "titolo": "Titolo del video in primo piano (esempio)",
@@ -248,19 +152,17 @@ window.NJC = {
         "viste": "",
         "link": ""
       }
-    ]
-  },
-  "brani": [
-    {
-      "titolo": "BKNAPP - N o s t a l g i c Nintendo  MIX LOFI",
-      "src": "N o s t a l g i c Nintendo  MIX LOFI"
+    ],
+    "preferiti": {
+      "Metaphor: ReFantazio - Official Hero Trailer": "https://www.youtube.com/watch?v=tsTMVEtiJ_M"
     }
-  ],
+  },
+  "brani": [],
   "amici": [],
   "carte": {
     "nome": "Console da Collezionare",
     "sigla": "CdC",
-    "logo": "",
+    "logo": " img/ConsoledaCollezione.png",
     "api": "https://script.google.com/macros/s/AKfycbymqJuJnxBJ6TimGyaapWJrfiJfhi4roqKjNEeGDGt2-CSkbNTZ-_sjRyZMSeRhpH27Ow/exec",
     "ogniSecondi": 60,
     "set": [
@@ -442,5 +344,6 @@ window.NJC = {
       "Leggendaria": 3
     }
   },
-  "paroleVietate": []
+  "paroleVietate": [],
+  "amiciOspiti": true
 };
