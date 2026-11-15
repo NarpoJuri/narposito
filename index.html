@@ -425,7 +425,7 @@ PG.home=()=>{
   <div class="row">${player()}
    <section class="card">${H('News e articoli')}<div class="nl">${NW.slice(0,3).map(n=>`<a href="#articolo-${esc(n.id)}"><b>${esc(n.titolo)}</b><br><span class="mu">${dt(n.data)} · ${n.tipo}</span></a>`).join('')}</div></section>
   </div>
-  <section class="card">${H('Ultimi video')}<div class="vg">${C.video.lista.slice(0,2).map(v=>`<a href="#video"><span class="ph" style="aspect-ratio:16/9">ANTEPRIMA</span><span>${esc(v.titolo)}</span></a>`).join('')}</div></section>`;
+  <section class="card">${H('Ultimi video')}<div class="vg">${vdata().L.slice(0,2).map((v,i)=>`<a href="#video" data-a="vpick" data-v="${i}"><span class="ph" style="aspect-ratio:16/9;position:relative">ANTEPRIMA${thumb(v)}</span><span>${esc(v.titolo)}</span></a>`).join('')}</div></section>`;
 };
 PG.live=()=>{
   const ch=(CH.twitch.replace(/\/+$/,'').split('/').pop()||'').toLowerCase(),host=location.hostname,ok=location.protocol==='https:'&&host&&!/claude|anthropic/.test(host),pl=C.prossimaLive,r=R[0];
@@ -542,13 +542,30 @@ function pgArt(n){
    <div class="chips">${n.argomenti.map(t=>`<button class="chip" data-a="nt" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div></div></article>`;
 }
 
+/* video: gli ultimi dal canale YouTube, letti tramite l'app web; altrimenti quelli scritti in content.js */
+const VD={d:null,at:0,busy:false};
+function loadVideo(){
+  if(!C.carte.api||VD.busy||(VD.d&&Date.now()-VD.at<6e5))return;VD.busy=true;
+  jsonp(C.carte.api+'?api=video',d=>{VD.busy=false;VD.at=Date.now();
+    if(d&&d.ok&&d.video&&d.video.length){VD.d=d;const a=document.activeElement;if(['video','home'].includes(route().p)&&!(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))render(false)}});
+}
+function vdata(){
+  const V=C.video;if(!VD.d)return{V,L:V.lista};
+  const c=VD.d.canale||{},n=(x,old)=>x!=null?nf(x):old;
+  return{V:Object.assign({},V,{iscrittoDal:c.iscrittoDal?dt(c.iscrittoDal):V.iscrittoDal,caricati:n(c.video,V.caricati),iscritti:n(c.iscritti,V.iscritti),visualizzazioni:n(c.visualizzazioni,V.visualizzazioni),descrizione:c.descrizione||V.descrizione}),
+    L:VD.d.video.map(v=>({id:v.id,titolo:v.titolo,durata:v.durata||'',data:v.data?dt(v.data):'',viste:v.viste!=null?nf(v.viste):'',link:v.link,descrizione:v.descrizione||'',thumb:v.anteprima}))};
+}
+const thumb=x=>x.thumb?`<img src="${esc(x.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.remove()">`:'';
 PG.video=()=>{
-  const V=C.video,L=V.lista,v=L[S.vs]||L[0],d=x=>esc(x||'—'),yt=esc(CH.youtube);
+  loadVideo();
+  const X=vdata(),V=X.V,L=X.L,v=L[S.vs]||L[0],d=x=>esc(x||'—'),yt=esc(CH.youtube);
+  const emb=v.id&&location.protocol==='https:'&&!/claude|anthropic/.test(location.hostname);
   const tabs=[['video','Video'],['preferiti','Preferiti'],['playlist','Playlist'],['iscritti','Iscritti'],['commenti','Commenti']];
   const comm=`<h3>Commenti del canale</h3><div class="bx">${board('ytc',{empty:'Nessun commento: lascia il primo.',label:'Commento',btn:'Commenta'})}</div>`;
-  const body=S.vt==='video'?`<h3>Video in primo piano</h3><div class="bx"><a class="scr" href="${esc(v.link)||yt}">▶<br>${esc(v.titolo)}<br><small>si apre su YouTube</small></a>
-     <div class="ctl" aria-hidden="true">▶ <i></i> ${d(v.durata)} 🔊</div><p style="margin-top:8px"><b>${esc(v.titolo)}</b></p><p><span class="stars" aria-label="Valutazione">★★★★☆</span> · Visualizzazioni: ${d(v.viste)} · Aggiunto: ${d(v.data)}</p><p style="margin-top:6px">${esc(v.descrizione||'')}</p></div>
-     <h3>Tutti i video (${L.length})</h3><div class="bx"><div class="vgr">${L.map((x,i)=>`<div><button data-a="vs" data-v="${i}" class="th" style="width:100%;cursor:pointer" aria-label="Metti in primo piano: ${esc(x.titolo)}">▶<span>${d(x.durata)}</span></button><button class="lk" data-a="vs" data-v="${i}" style="padding:4px 0;text-align:left;font-weight:bold">${esc(x.titolo)}</button><div style="color:#666">${d(x.data)}<br>${d(x.viste)} visualizzazioni</div></div>`).join('')}</div></div>`
+  const body=S.vt==='video'?`<h3>Video in primo piano</h3><div class="bx">${emb?`<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}" title="${esc(v.titolo)}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;aspect-ratio:16/9;border:0;display:block;background:#000"></iframe>`
+     :`<a class="scr" href="${esc(v.link)||yt}" style="position:relative;overflow:hidden">${thumb(v)}<span style="position:relative;background:#000a;padding:6px 12px">▶ ${esc(v.titolo)}<br><small>si apre su YouTube</small></span></a>
+     <div class="ctl" aria-hidden="true">▶ <i></i> ${d(v.durata)} 🔊</div>`}<p style="margin-top:8px"><b>${esc(v.titolo)}</b></p><p><span class="stars" aria-label="Valutazione">★★★★☆</span> · Visualizzazioni: ${d(v.viste)} · Aggiunto: ${d(v.data)}</p><p style="margin-top:6px">${esc(v.descrizione||'')}</p></div>
+     <h3>${VD.d?'Ultimi video':'Tutti i video'} (${L.length})</h3><div class="bx"><div class="vgr">${L.map((x,i)=>`<div><button data-a="vs" data-v="${i}" class="th" style="width:100%;cursor:pointer;overflow:hidden" aria-label="Metti in primo piano: ${esc(x.titolo)}">▶${thumb(x)}${x.durata?`<span>${esc(x.durata)}</span>`:''}</button><button class="lk" data-a="vs" data-v="${i}" style="padding:4px 0;text-align:left;font-weight:bold">${esc(x.titolo)}</button><div style="color:#666">${d(x.data)}<br>${d(x.viste)} visualizzazioni</div></div>`).join('')}</div></div>`
    :S.vt==='commenti'?comm:`<div class="bx"><p>Questa sezione si riempie da sola quando lo script legge i dati del canale YouTube.</p></div>`;
   return `<section class="yt"><h1>Canale di ${esc(CH.youtubeNome)}</h1>
    <div class="tabs" role="tablist">${tabs.map(t=>`<button role="tab" data-a="vt" data-v="${t[0]}" aria-selected="${S.vt===t[0]}">${t[1]}</button>`).join('')}</div>
@@ -688,7 +705,7 @@ const ACT={
   sxgo(){const x=S.sx;if(!x||!CT.api)return;x.out={msg:'Preparo lo scambio…',wait:true};render(false);
     jsonp(CT.api+'?api=scambio&u='+encodeURIComponent(cNick())+'&set='+encodeURIComponent(x.set)+'&scelte='+encodeURIComponent(JSON.stringify(x.sel)),r=>{if(S.sx!==x)return;
       x.out=!r?{msg:'Non riesco a preparare lo scambio in questo momento: riprova.'}:r.ok?{cmd:((CA.d&&CA.d.cmd)||'!scambia')+' '+r.codice,min:r.minuti}:{msg:r.errore||'Scambio non riuscito.'};render(false)})},
-  sxcopy(){const t=S.sx&&S.sx.out&&S.sx.out.cmd;if(!t)return;const no=()=>$('sxok').textContent='Selezionalo e copialo a mano.';try{navigator.clipboard.writeText(t).then(()=>$('sxok').textContent='Copiato.',no)}catch(e){no()}},vt(v){S.vt=v;render(false)},vs(v){S.vs=+v;S.vt='video';render()},
+  sxcopy(){const t=S.sx&&S.sx.out&&S.sx.out.cmd;if(!t)return;const no=()=>$('sxok').textContent='Selezionalo e copialo a mano.';try{navigator.clipboard.writeText(t).then(()=>$('sxok').textContent='Copiato.',no)}catch(e){no()}},vt(v){S.vt=v;render(false)},vpick(v){S.vs=+v;S.vt='video'},vs(v){S.vs=+v;S.vt='video';render()},
   ring(v){const n=amici().length;S.ring=+v?(S.ring+ +v+n)%n:Math.floor(Math.random()*n);render(false)},
   copy(){const t=$('lcode');const ok=()=>$('cpok').textContent='Copiato.';try{navigator.clipboard.writeText(t.value).then(ok,()=>{t.select();$('cpok').textContent='Seleziona e copia a mano.'})}catch(e){t.select();$('cpok').textContent='Seleziona e copia a mano.'}},
   play(){if(P.on){P.on=false;pStop();pUI()}else pStart()},
@@ -710,6 +727,7 @@ try{if(!sessionStorage.getItem('nj.v')){sessionStorage.setItem('nj.v','1');LS.se
 $('iring').innerHTML=mascot();$('iname').textContent=CH.nome;$('imotto').textContent=CH.motto;
 if(!LS.get('intro',0))$('intro').hidden=false;
 render(false);
+setTimeout(loadVideo,300);
 </script>
 <script src="covers.js" async onload="NJcovers()"></script>
 </body>
