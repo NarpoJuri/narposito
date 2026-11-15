@@ -93,6 +93,13 @@ button.tc{background:none;border:0;padding:0;text-align:left;font:inherit;color:
 .wk{width:120px;aspect-ratio:12/17;flex:none;border-radius:6px;border:1px solid var(--ink);background:linear-gradient(160deg,hsl(var(--hu) 90% 82%),#fff 55%,hsl(calc(var(--hu) + 120) 90% 84%));display:flex;flex-direction:column;justify-content:space-between;padding:8px;font-family:var(--tit);font-size:9px;color:var(--ink);text-decoration:none;overflow:hidden;position:relative}
 .wk b{font-size:1.9em;font-weight:400;line-height:1.1}.wk img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .wk.big{width:min(260px,100%);font-size:16px;padding:16px}
+.wk.xl{width:min(330px,72vw);font-size:19px;padding:20px;box-shadow:0 10px 0 var(--line)}
+.slw{padding:28px 20px 18px}
+.slt{display:grid}
+.sl{grid-area:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;min-width:0;opacity:0;visibility:hidden;transition:opacity .5s}
+.sl.on{opacity:1;visibility:visible}
+.sln{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-top:22px}
+.sln .pb{width:40px;height:40px;font-size:18px;font-weight:700}
 /* lettore */
 .disc{width:96px;height:96px;border-radius:50%;border:30px solid var(--ink);outline:4px solid var(--acc);outline-offset:-4px;background:conic-gradient(var(--soft),var(--cy),var(--soft),#ffd9f0,var(--soft));flex:none}
 .disc.on{animation:gira 3s linear infinite}@keyframes gira{to{transform:rotate(360deg)}}
@@ -212,6 +219,7 @@ body{font-size:16px}
 .tile{padding:14px;gap:6px;border-radius:14px}.tile svg{width:32px;height:32px}.tile b{font-size:12px}.tile span{font-size:14px}
 .five{display:flex;overflow-x:auto;gap:12px;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 8px}
 .five .g{flex:0 0 38%;scroll-snap-align:start}
+.slw{padding:20px 14px 14px}.slw .five{margin:0;padding:0 0 8px}.sln .chip{padding:0 12px;font-size:14px}
 .grid{grid-template-columns:repeat(2,1fr);gap:16px 12px}
 .stats{grid-template-columns:1fr 1fr}.stats b{font-size:20px}
 .ff{grid-template-columns:1fr 1fr}.ff .fl:first-child{grid-column:1/-1}
@@ -225,7 +233,7 @@ body{font-size:16px}
 .foot{flex-direction:column;align-items:flex-start}
 .msgs.tall{max-height:46vh}
 }
-@media (prefers-reduced-motion:reduce){.tick span{animation:none;padding-left:16px;white-space:normal}.disc.on,#intro .ring{animation:none}html{scroll-behavior:auto}}
+@media (prefers-reduced-motion:reduce){.sl{transition:none}.tick span{animation:none;padding-left:16px;white-space:normal}.disc.on,#intro .ring{animation:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -292,7 +300,7 @@ window.NJcovers=()=>document.querySelectorAll('[data-cv]').forEach(el=>{const b=
 const gcard=(g,extra)=>`<a class="g" href="#gioco-${g.slug}">${cover(g)}<b>${esc(g.k)}</b><span class="mu sm">${esc(g.c.slice(0,2).join(', ')||'—')}${extra?' · '+extra+' live':''}</span>${stB(g)}</a>`;
 const rndGame=()=>G[Math.floor(Math.random()*G.length)];
 
-const S={q:'',fy:'',fc:'',fr:'',fs:'',sort:'n',page:0,rnd:rndGame(),nf:'',nt:'',nm:'',np:0,vt:'video',vs:0,ring:0,cs:0,cr:'',cn:'',bt:'giochi',bk:'',bl:30,sx:null};
+const S={q:'',fy:'',fc:'',fr:'',fs:'',sort:'n',page:0,rnd:rndGame(),nf:'',nt:'',nm:'',np:0,vt:'video',vs:0,ring:0,cs:0,cr:'',cn:'',bt:'giochi',bk:'',bl:30,sx:null,sl:0,slp:false};
 const H=(t)=>`<h2 class="h"><i></i>${t}</h2>`;
 const IC={
  backlog:'<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="3"><circle cx="22" cy="22" r="18"/><circle cx="22" cy="22" r="5"/></svg>',
@@ -369,7 +377,7 @@ const player=()=>`<section class="card">${H('Lettore musicale')}<div class="row"
 /* ---------- weekly ---------- */
 const WK=C.weekly.slice().sort((a,b)=>b.n-a.n);
 const wkPdf=v=>'weekly/narpoplay-vol-'+pad3(v.n)+'.pdf';
-const wkCover=(v,big)=>`<span class="wk ${big?'big':''}" style="--hu:${(v.n*47)%360}"${v.pdf?` data-wk="${+v.n}"`:''}>${v.pdf&&WKC[v.n]?`<img src="${WKC[v.n]}" alt="Copertina del volume ${+v.n}">`:''}<span>WEEKLY<br>NARPOPLAY</span><b>VOL.<br>${pad3(v.n)}</b></span>`;
+const wkCover=(v,big)=>`<span class="wk ${big===2?'xl':big?'big':''}" style="--hu:${(v.n*47)%360}"${v.pdf?` data-wk="${+v.n}"`:''}>${v.pdf&&WKC[v.n]?`<img src="${WKC[v.n]}" alt="Copertina del volume ${+v.n}">`:''}<span>WEEKLY<br>NARPOPLAY</span><b>VOL.<br>${pad3(v.n)}</b></span>`;
 /* la copertina è la prima pagina del PDF, disegnata nel browser */
 const PDFJS='https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/',WKC={};let pdfLib=null,wkQ=Promise.resolve();
 function wkFromPdf(n){
@@ -423,11 +431,21 @@ PG.home=()=>{
   const pl=C.prossimaLive,vol=w?`online il volume ${w.n} del Weekly Narpoplay`:'';
   const tick=[...C.novita,vol,pl.quando?`prossima live: ${pl.quando}${pl.gioco?' – '+pl.gioco:''}`:'',`ultima live: ${R[0][2]}`,`${nf(R.length)} live e ${nf(G.length)} giochi nell’archivio`].filter(Boolean);
   const soc=[['instagram','Instagram'],['x','X'],['bluesky','Bluesky'],['tiktok','TikTok']].filter(x=>CH[x[0]]);
+  const v=vdata().L[0],SL=['Weekly Narpoplay','Ultimo video',actOk?'In live adesso':'Dal backlog'];
+  const sl=[
+   w?`<h2 class="pt">Weekly Narpoplay</h2>${wkCover(w,2)}<p><b style="font-size:1.2em">Volume ${w.n}</b><br><span class="mu">uscito il ${dtl(w.data)}</span></p><div class="chips" style="justify-content:center">${wkBtn(w)}<a class="btn gh" href="#weekly">Tutti gli arretrati</a></div>`
+    :`<h2 class="pt">Weekly Narpoplay</h2><p class="mu">Il primo volume è in arrivo.</p>`,
+   v?`<h2 class="pt">Ultimo video</h2><a href="#video" data-a="vpick" data-v="0" class="ph" style="aspect-ratio:16/9;position:relative;width:min(620px,100%);text-decoration:none">ANTEPRIMA${thumb(v)}</a><p><b style="font-size:1.2em">${esc(v.titolo)}</b>${v.data||v.viste?`<br><span class="mu">${esc([v.data,v.viste?v.viste+' visualizzazioni':''].filter(Boolean).join(' · '))}</span>`:''}</p><div class="chips" style="justify-content:center"><a class="btn" href="#video" data-a="vpick" data-v="0">Guarda il video</a><a class="btn gh" href="${esc(CH.youtube)}">Canale YouTube</a></div>`:'',
+   `<h2 class="pt">${actOk?'Titoli attivi in live':'Ultimi giochi in live'}</h2><div class="five" style="width:100%;text-align:left">${act.slice(0,5).map(x=>gcard(x,x.n)).join('')}</div><div class="chips" style="justify-content:center"><a class="btn" href="#backlog">Tutto il backlog</a><button class="btn gh" data-a="rnd">Gioco a caso</button></div>`];
+  if(S.sl>2||!sl[S.sl])S.sl=0;
   return `<header class="card hero">
    <button class="ring" data-a="egg" aria-label="Tamacast, la mascotte del canale">${mascot()}</button>
    <div class="tx"><h1>${esc(CH.nome)}</h1><p class="mu" style="font-size:1.15em">${esc(CH.motto)}</p>${CH.bio?`<p>${esc(CH.bio)}</p>`:''}<a class="btn mag" style="min-height:48px;padding:0 26px;font-size:13px" href="#live">Guarda la live</a></div>
    <div class="lcd onair"><b>ON AIR</b><span>prossima live:</span><span>${esc(pl.quando||'calendario in arrivo')}</span><span>${esc(pl.gioco||'')}</span></div></header>
   <div class="tick" aria-label="Novità"><span>${tick.map(esc).join(' /// ')} ///</span></div>
+  <section class="card slw" aria-roledescription="carosello" aria-label="In evidenza">
+   <div class="slt">${sl.map((h,i)=>`<div class="sl${i===S.sl?' on':''}" aria-hidden="${i!==S.sl}"${i===S.sl?'':' inert'}>${h}</div>`).join('')}</div>
+   <div class="sln"><button class="pb" data-a="sln" data-v="-1" aria-label="Precedente">‹</button>${SL.map((t,i)=>sl[i]?`<button class="chip" data-a="sl" data-v="${i}" aria-pressed="${i===S.sl}">${t}</button>`:'').join('')}<button class="pb" data-a="sln" data-v="1" aria-label="Successivo">›</button><button class="pb" data-a="slp" aria-label="${S.slp?'Riprendi lo scorrimento':'Ferma lo scorrimento'}">${S.slp?'▶':'❚❚'}</button></div></section>
   <section class="card">${H('Community e link')}<div class="hub">${C.link.map(l=>`<a href="${esc(l.url)}"><b>${esc(l.titolo)}</b><span>${esc(l.sotto||'')}</span></a>`).join('')}</div>
    ${soc.length?`<div class="chips" style="margin-top:16px;justify-content:center">${soc.map(x=>`<a class="btn gh" href="${esc(CH[x[0]])}">${x[1]}</a>`).join('')}</div>`:''}</section>
   <div class="tiles">
@@ -441,18 +459,19 @@ PG.home=()=>{
    <section class="card">${H('Portato in live in questa giornata')}<p class="mu" style="margin-bottom:10px">Il ${now.toLocaleDateString('it-IT',{day:'numeric',month:'long'})} degli anni scorsi.</p>
     ${day.length?`<div class="mc">${day.map(r=>{const k=r[3][0],gg=k&&GI[k];return `<a href="${gg?'#gioco-'+gg.slug:'#backlog'}"><b>${r[0].slice(0,4)} · ${esc(r[3].join(', ')||r[4][0]||'Live')}</b><span class="mu sm" style="flex:1 1 100%">${esc(r[2])}</span></a>`}).join('')}</div>`:'<p>In questo giorno, negli anni scorsi, nessuna live.</p>'}</section>
   </div>
-  <section class="card">${H(actOk?'Dal backlog · titoli attivi in live':'Dal backlog · ultimi giochi in live')}<div class="five">${act.slice(0,5).map(x=>gcard(x,x.n)).join('')}</div>
-   <div style="display:flex;flex-wrap:wrap;gap:0 24px;margin-top:8px"><a class="lk" href="#backlog">tutti i giochi</a><button class="lk" data-a="rnd">gioco a caso</button></div></section>
   <div class="row">
-   <section class="card">${H('Weekly Narpoplay')}${w?`<div class="row">${wkCover(w)}<div style="flex:1 1 130px;display:flex;flex-direction:column;gap:4px;align-items:flex-start"><b>Volume ${w.n}</b><span class="mu">uscito il ${dt(w.data)}</span><span style="margin-top:8px">${wkBtn(w)}</span><a class="lk" href="#weekly">tutti gli arretrati</a></div></div>`:'<p class="mu">Il primo volume è in arrivo.</p>'}</section>
    <section class="card">${H('Gioco a caso dal backlog')}<div id="rnd">${rndBox()}</div>
    <button class="btn mag" data-a="again" style="margin-top:8px">Pescane un altro</button></section>
-  </div>
-  <div class="row">${player()}
    <section class="card">${H('News e articoli')}<div class="nl">${NW.slice(0,3).map(n=>`<a href="#articolo-${esc(n.id)}"><b>${esc(n.titolo)}</b><br><span class="mu">${dt(n.data)} · ${n.tipo}</span></a>`).join('')}</div></section>
-  </div>
-  <section class="card">${H('Ultimi video')}<div class="vg">${vdata().L.slice(0,2).map((v,i)=>`<a href="#video" data-a="vpick" data-v="${i}"><span class="ph" style="aspect-ratio:16/9;position:relative">ANTEPRIMA${thumb(v)}</span><span>${esc(v.titolo)}</span></a>`).join('')}</div></section>`;
+  </div>`;
 };
+function slGo(i){
+  const E=[...document.querySelectorAll('.sl')];if(!E.length)return;let n=((i%3)+3)%3,g=0;
+  while(E[n]&&!E[n].innerHTML.trim()&&g++<3)n=(n+(i<S.sl?2:1))%3;
+  S.sl=n;E.forEach((e,j)=>{e.classList.toggle('on',j===n);e.setAttribute('aria-hidden',j!==n);e.inert=j!==n});
+  document.querySelectorAll('[data-a=sl]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===n));
+}
+setInterval(()=>{const c=document.querySelector('.slw');if(!c||S.slp||document.hidden||c.matches(':hover')||c.contains(document.activeElement)||window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;slGo(S.sl+1)},7000);
 PG.live=()=>{
   const ch=(CH.twitch.replace(/\/+$/,'').split('/').pop()||'').toLowerCase(),host=location.hostname,ok=location.protocol==='https:'&&host&&!/claude|anthropic/.test(host),pl=C.prossimaLive,r=R[0];
   const off=(t,c)=>`<div class="ph" style="${c?'min-height:220px;height:100%':'aspect-ratio:16/9'}">${t}</div>`;
@@ -609,12 +628,7 @@ PG.amici=()=>{
   return `<section class="card"><h1 class="pt">Canali amici</h1><p class="mu" style="margin-top:6px">${(C.amici||[]).some(a=>a&&a.nome)?'I canali consigliati da '+esc(CH.nome)+'. Vai a trovarli.':'Chi passa spesso dalle live del canale. Vai a trovarli.'}</p></section>
   <div class="fr">${A.map(a=>`<section class="card fc"><div style="display:flex;gap:12px;align-items:center"><span class="fa" style="--hu:${hue(a.nome)}"${a.av?` data-av="${esc(a.av)}" data-t="${esc(a.avt||'jpeg')}"`:''}>${a.img?`<img src="${esc(a.img)}" alt="" onerror="this.replaceWith('${esc(a.nome[0].toUpperCase()).replace(/'/g,'')}')">`:esc(a.nome[0].toUpperCase())}</span><div><b>${esc(a.nome)}</b><br>
     ${a.live===true?'<span class="st live">IN LIVE ORA</span>':a.live===false?'<span class="st offl">OFFLINE</span>':'<span class="st n">stato live: da collegare</span>'}</div></div>
-   <span class="mu sm">${esc(a.piattaforma||'')}${a.gioca?' · gioca a '+esc(a.gioca):''}${a.n?' · ospite in '+a.n+' live':''}</span><p>${esc(a.testo||'')}</p>${a.link?`<a class="btn gh" href="${esc(a.link)}" style="margin-top:auto">Vai al canale</a>`:''}</section>`).join('')}</div>
-  <div class="row">
-   <section class="card">${H('Linkami')}<div class="row" style="align-items:center"><div class="ban"><i></i>${esc(CH.nome)}</div><div style="flex:1 1 240px"><label for="lcode" class="sm mu">Codice da copiare</label><textarea class="code" id="lcode" readonly>${esc(code)}</textarea><button class="btn gh" data-a="copy">Copia il codice</button> <span id="cpok" class="sm" role="status"></span></div></div></section>
-   <section class="card">${H('Entra nella lista')}<p>Hai un canale e passi spesso di qui? Scrivimi e ti aggiungo.</p><a class="btn mag" href="${esc(CH.twitch)}" style="margin-top:12px">Scrivimi</a></section>
-  </div>
-  <section class="card" style="text-align:center">${H('Webring')}<p>Sei su: <b>${esc(cur.nome||'')}</b></p><div class="pg" style="margin-top:12px"><button class="btn gh" data-a="ring" data-v="-1">← Precedente</button><a class="btn" href="${esc(cur.link||'#amici')}">Visita</a><button class="btn gh" data-a="ring" data-v="1">Successivo →</button><button class="btn gh" data-a="ring" data-v="0">Uno a caso</button></div></section>`;
+   <span class="mu sm">${esc(a.piattaforma||'')}${a.gioca?' · gioca a '+esc(a.gioca):''}${a.n?' · ospite in '+a.n+' live':''}</span><p>${esc(a.testo||'')}</p>${a.link?`<a class="btn gh" href="${esc(a.link)}" style="margin-top:auto">Vai al canale</a>`:''}</section>`).join('')}</div>`;
 };
 
 /* ---------- carte collezionabili: lette dall'app web di Apps Script (NarpoTGC) ---------- */
@@ -731,7 +745,7 @@ const ACT={
   sxgo(){const x=S.sx;if(!x||!CT.api)return;x.out={msg:'Preparo lo scambio…',wait:true};render(false);
     jsonp(CT.api+'?api=scambio&u='+encodeURIComponent(cNick())+'&set='+encodeURIComponent(x.set)+'&scelte='+encodeURIComponent(JSON.stringify(x.sel)),r=>{if(S.sx!==x)return;
       x.out=!r?{msg:'Non riesco a preparare lo scambio in questo momento: riprova.'}:r.ok?{cmd:((CA.d&&CA.d.cmd)||'!scambia')+' '+r.codice,min:r.minuti}:{msg:r.errore||'Scambio non riuscito.'};render(false)})},
-  sxcopy(){const t=S.sx&&S.sx.out&&S.sx.out.cmd;if(!t)return;const no=()=>$('sxok').textContent='Selezionalo e copialo a mano.';try{navigator.clipboard.writeText(t).then(()=>$('sxok').textContent='Copiato.',no)}catch(e){no()}},vt(v){S.vt=v;render(false)},vpick(v){S.vs=+v;S.vt='video'},vs(v){S.vs=+v;S.vt='video';render()},
+  sxcopy(){const t=S.sx&&S.sx.out&&S.sx.out.cmd;if(!t)return;const no=()=>$('sxok').textContent='Selezionalo e copialo a mano.';try{navigator.clipboard.writeText(t).then(()=>$('sxok').textContent='Copiato.',no)}catch(e){no()}},sl(v){slGo(+v);if(!S.slp){S.slp=true;render(false)}},sln(v){slGo(S.sl+ +v)},slp(){S.slp=!S.slp;render(false)},vt(v){S.vt=v;render(false)},vpick(v){S.vs=+v;S.vt='video'},vs(v){S.vs=+v;S.vt='video';render()},
   ring(v){const n=amici().length;S.ring=+v?(S.ring+ +v+n)%n:Math.floor(Math.random()*n);render(false)},
   copy(){const t=$('lcode');const ok=()=>$('cpok').textContent='Copiato.';try{navigator.clipboard.writeText(t.value).then(ok,()=>{t.select();$('cpok').textContent='Seleziona e copia a mano.'})}catch(e){t.select();$('cpok').textContent='Seleziona e copia a mano.'}},
   play(){if(P.on){P.on=false;pStop();pUI()}else pStart()},
