@@ -116,7 +116,7 @@ button.tc{background:none;border:0;padding:0;text-align:left;font:inherit;color:
 .vg a{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink)}
 .msgs{background:var(--soft);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:320px;overflow:auto;overflow-wrap:anywhere}
 .msgs.tall{max-height:52vh;min-height:200px}
-.msgs b{color:var(--vio)}.msgs div:nth-child(even) b{color:var(--mag)}
+.msgs b{color:var(--vio)}.sbadge{color:var(--mag);font-weight:700}.mod{margin-top:14px}.mod summary{cursor:pointer;color:var(--mu,#666);font-size:14px}.msgs div:nth-child(even) b{color:var(--mag)}
 .bform{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
 .fl{display:flex;flex-direction:column;gap:4px;flex:1 1 130px}.fl.w{flex:4 1 220px}
 .in{width:100%;min-height:44px;border:1px solid var(--mu);border-radius:999px;background:#fff;padding:6px 16px;font-size:16px}
@@ -336,27 +336,69 @@ const IC={
  more:'<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="currentColor"><circle cx="10" cy="22" r="4"/><circle cx="22" cy="22" r="4"/><circle cx="34" cy="22" r="4"/></svg>'};
 const mascot=()=>CH.mascotte?`<img src="${esc(CH.mascotte)}" alt="Tamacast, la mascotte del canale">`:'Tamacast<br>(mascotte)';
 
-/* ---------- chat e guestbook (per ora salvati solo su questo dispositivo) ---------- */
-function board(key,o){
-  const L=LS.get(key,[]),show=o.max?L.slice(-o.max):L;
-  return `<div class="msgs ${o.tall?'tall':''}" aria-live="polite">${show.length?show.map(m=>`<div><b>${esc(m.n)}</b> ${esc(m.t)} <span class="mu sm">· ${esc(m.h)}</span></div>`).join(''):`<p class="mu">${o.empty}</p>`}</div>
-  <form class="bform" data-board="${key}"><div class="fl"><label for="${key}n">Nick</label><input class="in" id="${key}n" name="n" maxlength="20" autocomplete="nickname" value="${esc(LS.get('nick',''))}"></div>
-  <div class="fl w"><label for="${key}t">${o.label||'Messaggio'}</label><input class="in" id="${key}t" name="t" maxlength="240"></div>
-  <button class="btn mag" style="flex:0 1 110px">${o.btn||'Invia'}</button><p class="sm" role="status" style="flex:1 1 100%;color:var(--mag)"></p></form>`;
+/* ---------- chat, guestbook e commenti: condivisi tramite l'app web del foglio "Chat e Commenti" ---------- */
+C.chat=C.chat||{};if(!Array.isArray(C.paroleVietate))C.paroleVietate=[];
+const CHA=String(C.chat.api||'').trim(),BD={},BO={};
+const bk=(t,p)=>t+'|'+(p||'');
+const encU=encodeURIComponent;
+function uid(){let u=LS.get('uid','');if(!/^[a-z0-9]{12,24}$/.test(u)){u='';const r=crypto.getRandomValues(new Uint8Array(12));r.forEach(x=>u+=(x%36).toString(36));LS.set('uid',u)}return u}
+const lKey=(t,p)=>t!=='commenti'?t:p==='video'?'ytc':'cm-'+p; // anteprima locale, se l'app web non è collegata
+const fmtD=ms=>{const d=new Date(ms);return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})};
+function bdList(t,p){if(!CHA)return LS.get(lKey(t,p),[]);const b=BD[bk(t,p)];return b&&b.d?b.d.msg:null}
+function msgsHTML(t,p,o){
+  const L=bdList(t,p),b=BD[bk(t,p)];
+  if(L==null)return `<p class="mu">${b&&b.err?'Non riesco a caricare i messaggi: riprovo tra poco.':'Carico i messaggi…'}</p>`;
+  const show=o.max?L.slice(-o.max):L,av=b&&b.d&&b.d.avviso&&t==='chat'?`<p class="note">${esc(b.d.avviso)}</p>`:'';
+  return av+(show.length?show.map(m=>`<div>${m.s?'<span class="sbadge" title="Streamer del canale">★</span> ':''}<b>${esc(m.n)}</b> ${esc(m.t)} <span class="mu sm">· ${m.d?fmtD(m.d):esc(m.h||'')}</span></div>`).join(''):`<p class="mu">${o.empty}</p>`);
 }
+function board(t,o){
+  o=o||{};const p=o.pg||'',k=bk(t,p),b=BD[k],id=(t+p).replace(/[^a-z0-9]/gi,'');BO[k]=o;
+  if(CHA)setTimeout(()=>bdLoad(t,p),0);
+  const chiusa=b&&b.d&&b.d.aperta===false,mx=(b&&b.d&&b.d.max)||({chat:200,guestbook:500,commenti:400}[t]||240);
+  return `<div class="msgs ${o.tall?'tall':''}" aria-live="polite" data-bd="${esc(k)}">${msgsHTML(t,p,o)}</div>
+  ${chiusa?'<p class="mu">In questo momento non si possono scrivere nuovi messaggi.</p>':`<form class="bform" data-board="${t}" data-pg="${esc(p)}"><div class="fl"><label for="${id}n">Nick</label><input class="in" id="${id}n" name="n" maxlength="20" autocomplete="nickname" value="${esc(LS.get('nick',''))}"></div>
+  <div class="fl w"><label for="${id}t">${o.label||'Messaggio'}</label><input class="in" id="${id}t" name="t" maxlength="${mx}"></div>
+  <button class="btn mag" style="flex:0 1 110px">${o.btn||'Invia'}</button><p class="sm" role="status" style="flex:1 1 100%;color:var(--mag)"></p></form>`}`;
+}
+function bdLoad(t,p,force){
+  if(!CHA)return;const k=bk(t,p),b=BD[k]||(BD[k]={d:null,at:0,busy:false,err:false});
+  if(b.busy||(!force&&Date.now()-b.at<3000))return;b.busy=true;
+  jsonp(CHA+'?api=leggi&t='+t+'&p='+encU(p),d=>{b.busy=false;b.at=Date.now();if(d&&d.ok){b.d=d;b.err=false}else b.err=true;drawBoard(k)});
+}
+function drawBoard(k){
+  document.querySelectorAll('.msgs[data-bd]').forEach(el=>{if(el.dataset.bd!==k)return;const i=k.indexOf('|'),t=k.slice(0,i),p=k.slice(i+1);
+    const end=el.scrollHeight-el.scrollTop-el.clientHeight<40,first=!el.dataset.ok,h=msgsHTML(t,p,BO[k]||{});
+    if(el.innerHTML!==h)el.innerHTML=h;el.dataset.ok=1;if(end||first)el.scrollTop=el.scrollHeight});
+}
+// aggiornamento: chat ogni pochi secondi, commenti ogni 30, guestbook ogni minuto; fermo se la scheda non è in vista
+setInterval(()=>{if(!CHA||document.hidden)return;const seen={};document.querySelectorAll('.msgs[data-bd]').forEach(el=>{const k=el.dataset.bd;if(seen[k])return;seen[k]=1;
+  const i=k.indexOf('|'),t=k.slice(0,i),ogni=t==='chat'?Math.max(3,+C.chat.ogniSecondi||5)*1000:t==='guestbook'?60000:30000,b=BD[k];if(!b||Date.now()-b.at>=ogni)bdLoad(t,k.slice(i+1),true)})},1000);
 let lastPost=0;
 function post(f){
-  const n=f.n.value.trim(),t=f.t.value.trim(),out=f.querySelector('[role=status]'),low=(n+' '+t).toLowerCase();
-  if(!n||!t){out.textContent='Scrivi sia il nick sia il messaggio.';return}
-  if(C.paroleVietate.some(w=>w&&low.includes(w))){out.textContent='Il messaggio contiene parole non ammesse.';return}
+  const t=f.dataset.board,p=f.dataset.pg||'',n=f.n.value.trim(),m=f.t.value.trim(),out=f.querySelector('[role=status]'),low=(n+' '+m).toLowerCase(),btn=f.querySelector('button');
+  if(!n||!m){out.textContent='Scrivi sia il nick sia il messaggio.';return}
+  if(C.paroleVietate.some(w=>w&&low.includes(String(w).toLowerCase()))){out.textContent='Il messaggio contiene parole non ammesse.';return}
   if(Date.now()-lastPost<4000){out.textContent='Un attimo: aspetta qualche secondo tra un messaggio e l’altro.';return}
-  lastPost=Date.now();
-  const now=new Date(),L=LS.get(f.dataset.board,[]);
-  L.push({n,t,h:now.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'})+' '+now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})});
-  LS.set(f.dataset.board,L.slice(-200));LS.set('nick',n);render(false);
-  document.querySelectorAll('.msgs').forEach(m=>m.scrollTop=m.scrollHeight);
+  lastPost=Date.now();LS.set('nick',n);
+  if(!CHA){const now=Date.now(),L=LS.get(lKey(t,p),[]);L.push({n,t:m,d:now});LS.set(lKey(t,p),L.slice(-200));render(false);
+    document.querySelectorAll('.msgs').forEach(x=>x.scrollTop=x.scrollHeight);return}
+  out.textContent='Invio…';btn.disabled=true;const mk=LS.get('modk','');
+  jsonp(CHA+'?api=scrivi&t='+t+'&p='+encU(p)+'&n='+encU(n)+'&m='+encU(m)+'&u='+uid()+(mk?'&k='+encU(mk):''),r=>{
+    btn.disabled=false;
+    if(!r){out.textContent='Non riesco a inviare il messaggio: riprova tra poco.';return}
+    if(!r.ok){out.textContent=r.errore||'Messaggio non inviato.';if(r.attesa)lastPost=Date.now()-4000+r.attesa*1000;return}
+    f.t.value='';out.textContent=r.inAttesa?'Inviato: comparirà dopo l’approvazione.':'';
+    const el=document.querySelector('.msgs[data-bd="'+bk(t,p)+'"]');if(el)el.dataset.ok='';bdLoad(t,p,true);
+  });
 }
-const LOCALNOTE='<p class="note">Anteprima: i messaggi restano su questo dispositivo finché non colleghiamo il servizio per la chat condivisa.</p>';
+const LOCALNOTE=CHA?'':'<p class="note">Anteprima: i messaggi restano su questo dispositivo finché non colleghi la chat condivisa (editor → Chat e moderazione).</p>';
+function modBox(){
+  if(!CHA)return '';const on=!!LS.get('modk','');
+  return `<details class="mod"><summary>Sei lo streamer?</summary>${on?`<p style="margin:8px 0">Codice streamer attivo su questo dispositivo: i tuoi messaggi hanno la ★.</p><button class="btn gh" data-a="modout">Togli il codice da questo dispositivo</button>`
+   :`<form class="bform" data-mod style="margin-top:8px"><div class="fl w"><label for="modk">Codice streamer</label><input class="in" id="modk" name="k" type="password" autocomplete="off"></div><button class="btn gh" style="flex:0 1 110px">Attiva</button><p class="sm" role="status" style="flex:1 1 100%;color:var(--mag)"></p></form>`}</details>`;
+}
+function modTry(f){const k=f.k.value.trim(),out=f.querySelector('[role=status]');if(!k)return;out.textContent='Controllo…';
+  jsonp(CHA+'?api=streamer&k='+encU(k),r=>{if(r&&r.ok){LS.set('modk',k);render(false)}else out.textContent=r?'Codice non valido.':'Non riesco a controllare il codice: riprova.'})}
 
 /* ---------- lettore musicale ---------- */
 const DEMO=[
@@ -549,12 +591,12 @@ PG.privacy=()=>{
    <li><b>Dati di navigazione.</b> Il sito è ospitato su ${HO[0]}: come ogni server, ${HO[2]} riceve il tuo indirizzo IP e i dati tecnici della richiesta per mostrarti le pagine e per sicurezza.</li>
    <li><b>Nome utente Twitch sul sito.</b> Se lo scrivi nelle pagine Carte collezionabili o Sound alert, viene inviato all’app del canale (Google Apps Script) per mostrarti la collezione o mettere in coda il suono. I suoni riscattati vengono annotati con nome utente, suono e ora in un foglio Google gestito dal titolare.</li>
    <li><b>Gioco delle carte in live.</b> Se riscatti un pacchetto con i punti canale o usi i comandi delle carte in chat, il bot del canale salva in un foglio Google il tuo nome utente e il tuo ID Twitch, con le carte che possiedi, i pacchetti aperti, gli scambi e i regali. Le collezioni sono visibili a chiunque cerchi quel nome utente, sul sito e nell’album delle carte.</li>
-   <li><b>Chat, guestbook e commenti del sito.</b> Per ora restano solo nel tuo browser: nessuno li riceve.</li></ul>
-  <p>Basi giuridiche: il servizio che chiedi tu (carte, suoni) e il legittimo interesse a far funzionare e proteggere il sito; il consenso per i contenuti di Twitch e YouTube. Il registro dei suoni e le collezioni restano finché servono al gioco del canale o finché ne chiedi la cancellazione.</p>
+   <li><b>Chat, guestbook e commenti del sito.</b> ${CHA?'Il nick e il messaggio che scrivi vengono inviati all’app del canale (Google Apps Script), salvati in un foglio Google gestito dal titolare e mostrati a tutti sul sito, con data e ora. Insieme al messaggio viene salvato un codice casuale creato dal tuo browser, che non ti identifica: serve solo a limitare i messaggi ripetuti e a bloccare chi disturba. Non scrivere dati personali tuoi o di altri nei messaggi. I messaggi restano finché il titolare non li cancella: puoi chiedere in qualsiasi momento di cancellare i tuoi.':'Per ora restano solo nel tuo browser: nessuno li riceve.'}</li></ul>
+  <p>Basi giuridiche: il servizio che chiedi tu (carte, suoni, messaggi nella chat del sito) e il legittimo interesse a far funzionare e proteggere il sito; il consenso per i contenuti di Twitch e YouTube. Il registro dei suoni e le collezioni restano finché servono al gioco del canale o finché ne chiedi la cancellazione.</p>
   <h2>Servizi esterni</h2><div class="tw"><table><thead><tr><th>Servizio</th><th>A cosa serve</th><th>Quando</th><th>Informativa</th></tr></thead><tbody>
    <tr><td>${HO[0]} (${HO[1]})</td><td>Ospita il sito</td><td>Sempre</td><td>${L(HO[2],HO[3])}</td></tr>
    <tr><td>Google Fonts</td><td>I caratteri del sito</td><td>${PV.fontLocali?'Non usato: i caratteri sono sul sito':'Sempre'}</td><td>${L('Google','https://policies.google.com/privacy')}</td></tr>
-   <tr><td>Google Apps Script e Google Drive</td><td>Carte, sound alert, ultimi video, immagini delle carte</td><td>Solo nelle pagine Carte collezionabili, Sound alert, Live e Video</td><td>${L('Google','https://policies.google.com/privacy')}</td></tr>
+   <tr><td>Google Apps Script e Google Drive</td><td>Carte, sound alert, ultimi video, immagini delle carte${CHA?', chat, guestbook e commenti':''}</td><td>Solo nelle pagine Carte collezionabili, Sound alert, Live e Video${CHA?', nella chat e negli articoli':''}</td><td>${L('Google','https://policies.google.com/privacy')}</td></tr>
    <tr><td>YouTube</td><td>Anteprime e lettore dei video</td><td>Solo con il tuo consenso</td><td>${L('Google','https://policies.google.com/privacy')}</td></tr>
    <tr><td>Twitch (Twitch Interactive)</td><td>Player e chat della live, solo con il tuo consenso</td><td>Pagina Live</td><td>${L('Twitch','https://www.twitch.tv/p/legal/privacy-notice/')}</td></tr>
    <tr><td>jsDelivr</td><td>La libreria che mostra la copertina del Weekly dal PDF</td><td>Solo se la copertina di un volume non è caricata come immagine</td><td>${L('jsDelivr','https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net')}</td></tr>
@@ -564,7 +606,8 @@ PG.privacy=()=>{
    <tr><td>nj.consenso</td><td>La tua scelta sui contenuti esterni</td><td>6 mesi</td></tr>
    <tr><td>nj.intro</td><td>Ricorda che hai già visto la pagina di entrata</td><td>Finché non cancelli i dati del sito</td></tr>
    <tr><td>nj.nick</td><td>Il nome utente scritto nei moduli, per non riscriverlo</td><td>Finché non cancelli i dati del sito</td></tr>
-   <tr><td>nj.chat, nj.guestbook, nj.ytc</td><td>I messaggi che scrivi nel sito, solo su questo dispositivo</td><td>Finché non cancelli i dati del sito</td></tr>
+   ${CHA?`<tr><td>nj.uid</td><td>Codice casuale usato dalla chat del sito per limitare i messaggi ripetuti e i blocchi (si crea solo quando scrivi)</td><td>Finché non cancelli i dati del sito</td></tr>
+   <tr><td>nj.modk</td><td>Solo sul dispositivo dello streamer: il codice che segna i suoi messaggi</td><td>Finché non lo togli</td></tr>`:`<tr><td>nj.chat, nj.guestbook, nj.ytc</td><td>I messaggi che scrivi nel sito, solo su questo dispositivo</td><td>Finché non cancelli i dati del sito</td></tr>`}
    <tr><td>nj.visite, nj.v</td><td>Il contatore delle tue visite, solo su questo dispositivo</td><td>Finché non cancelli i dati del sito</td></tr>
    <tr><td>nj.wk…</td><td>Le copertine del Weekly già preparate</td><td>Fino alla chiusura della scheda</td></tr>
   </tbody></table></div>
@@ -695,7 +738,8 @@ function pgArt(n){
    ${n.foto[0]?`<figure>${foto(n.foto[0],'16/9')}<figcaption>${esc(n.foto[0].didascalia||'')}</figcaption></figure>`:''}
    ${n.testo.map(p=>`<p>${esc(p)}</p>`).join('')}
    ${n.foto.length>1?`${H('Galleria')}<div class="gal">${n.foto.slice(1).map(f=>`<figure>${foto(f,'4/3')}<figcaption>${esc(f.didascalia||'')}</figcaption></figure>`).join('')}</div>`:''}
-   <div class="chips">${n.argomenti.map(t=>`<button class="chip" data-a="nt" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div></div></article>`;
+   <div class="chips">${n.argomenti.map(t=>`<button class="chip" data-a="nt" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div></div></article>
+   <section class="card">${H('Commenti')}${board('commenti',{pg:'articolo-'+String(n.id).toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,50),empty:'Nessun commento: lascia il primo.',label:'Commento',btn:'Commenta'})}</section>`;
 }
 
 /* video: gli ultimi dal canale YouTube, letti tramite l'app web; altrimenti quelli scritti in content.js */
@@ -719,7 +763,7 @@ PG.video=()=>{
   const PL=(VD.d&&VD.d.playlist)||[],PR=Object.keys(V.preferiti&&typeof V.preferiti==='object'?V.preferiti:{});
   const embOk=v.id&&location.protocol==='https:'&&!/claude|anthropic/.test(location.hostname),emb=embOk&&extOk('youtube');
   const tabs=[['video','Video'],['preferiti','Preferiti'],['playlist','Playlist'],['iscritti','Iscritti'],['commenti','Commenti']];
-  const comm=`<h3>Commenti del canale</h3><div class="bx">${board('ytc',{empty:'Nessun commento: lascia il primo.',label:'Commento',btn:'Commenta'})}</div>`;
+  const comm=`<h3>Commenti del canale</h3><div class="bx">${board('commenti',{pg:'video',empty:'Nessun commento: lascia il primo.',label:'Commento',btn:'Commenta'})}</div>`;
   const body=S.vt==='video'?`<h3>Video in primo piano</h3><div class="bx">${emb?`<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}" title="${esc(v.titolo)}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;aspect-ratio:16/9;border:0;display:block;background:#000"></iframe>`
      :`<a class="scr" href="${esc(v.link)||yt}" style="position:relative;overflow:hidden">${thumb(v)}<span style="position:relative;background:#000a;padding:6px 12px">▶ ${esc(v.titolo)}<br><small>si apre su YouTube</small></span></a>
      <div class="ctl" aria-hidden="true">▶ <i></i> ${d(v.durata)} 🔊</div>${embOk?`<p style="margin-top:6px"><button class="lk" data-a="ext" data-v="youtube" style="padding:4px 0">▶ Guarda qui sul sito</button> <span style="color:#666">(carica il lettore di YouTube, che può usare cookie suoi)</span></p>`:''}`}<p style="margin-top:8px"><b>${esc(v.titolo)}</b></p><p><span class="stars" aria-label="Valutazione">★★★★☆</span> · Visualizzazioni: ${d(v.viste)} · Aggiunto: ${d(v.data)}</p><p style="margin-top:6px">${esc(v.descrizione||'')}</p></div>
@@ -816,7 +860,7 @@ PG.carte=()=>{
   </div>
   <section class="card">${H('Come funziona')}<ol style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px"><li>In live riscatti un pacchetto con i punti canale: le carte finiscono nel tuo album.</li><li>Qui scrivi il tuo nome utente e vedi le carte trovate, quelle che mancano e i doppioni.</li><li>Con abbastanza doppioni scegli quali scartare e prepari lo scambio: ricevi un codice.</li><li>Scrivi il codice in chat con <b>${esc(d.cmd||'!scambia')}</b>: serve a confermare che l’account è il tuo. Il pacchetto scambio si apre da solo in diretta.</li><li>Le carte si possono anche regalare a un altro spettatore, dalla chat.</li></ol></section>`;
 };
-PG.chat=()=>`<section class="card"><h1 class="pt">Chat del sito</h1><div style="margin:12px 0">${LOCALNOTE}</div>${board('chat',{tall:1,empty:'Ancora nessun messaggio: rompi il ghiaccio.'})}</section>
+PG.chat=()=>`<section class="card"><h1 class="pt">Chat del sito</h1>${LOCALNOTE?`<div style="margin:12px 0">${LOCALNOTE}</div>`:'<p class="mu" style="margin:6px 0 12px">I messaggi sono pubblici. Niente dati personali, rispetto per tutti.</p>'}${board('chat',{tall:1,empty:'Ancora nessun messaggio: rompi il ghiaccio.'})}${modBox()}</section>
  <section class="card">${H('Guestbook')}<p class="mu" style="margin-bottom:12px">Passi di qui per la prima volta? Lascia una firma.</p>${board('guestbook',{empty:'Nessuna firma, per ora.',label:'Firma',btn:'Firma'})}</section>`;
 
 PG.segreto=()=>{
@@ -879,10 +923,11 @@ const ACT={
   prev(){pGo(-1)},next(){pGo(1)},
   track(v){P.i=+v;P.t0=0;if(P.audio){P.audio.pause();P.audio=null}pStart(0)},
   seek(v,b,e){const r=b.getBoundingClientRect(),f=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(pDur())pStart(f*pDur())},
+  modout(){LS.set('modk','');render(false)},
   egg(){ACT.egg.n=(ACT.egg.n||0)+1;if(ACT.egg.n>=7){ACT.egg.n=0;location.hash='segreto'}}
 };
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&ACT[b.dataset.a])ACT[b.dataset.a](b.dataset.v,b,e)});
-document.addEventListener('submit',e=>{e.preventDefault();if(e.target.dataset.board)post(e.target);else if(e.target.dataset.snd!=null){const b=document.activeElement;if(b)b.blur();loadSuoni(true)}else if(e.target.dataset.cn!=null){S.cn=e.target.nick.value;S.sx=null;CA.at=0;render(false)}});
+document.addEventListener('submit',e=>{e.preventDefault();if(e.target.dataset.board)post(e.target);else if(e.target.dataset.mod!=null)modTry(e.target);else if(e.target.dataset.snd!=null){const b=document.activeElement;if(b)b.blur();loadSuoni(true)}else if(e.target.dataset.cn!=null){S.cn=e.target.nick.value;S.sx=null;CA.at=0;render(false)}});
 const onF=e=>{const f=e.target.dataset&&e.target.dataset.f;if(f){S[f]=e.target.value;S.page=0;renderBL()}};
 document.addEventListener('input',onF);document.addEventListener('change',onF);
 const KON=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let kp=0;

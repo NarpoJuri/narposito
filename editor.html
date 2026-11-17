@@ -115,10 +115,12 @@ const SEZ=[
    ['privacy.aggiornata','Informativa aggiornata il','d'],
    ['privacy.hosting','Dove è ospitato il sito','s',0,'Automatico va bene per indirizzi github.io e pages.dev; con un dominio tuo scegli il servizio',['automatico','GitHub Pages','Cloudflare Pages']],
    ['privacy.fontLocali','Caratteri caricati dal sito invece che da Google Fonts','c',1,'Attivalo solo dopo aver caricato nella cartella fonts i file jura-500.woff2, jura-700.woff2 e michroma-400.woff2']]},
- {id:'carte',t:'Carte e moderazione',h:'Impostazioni che cambiano di rado.',obj:'',f:[
+ {id:'carte',t:'Carte, chat e moderazione',h:'Impostazioni che cambiano di rado.',obj:'',f:[
    ['carte.nome','Nome della collezione di carte','t'],['carte.sigla','Sigla','t'],['carte.logo','Logo della collezione','t',1,'Percorso del file, es. img/cdc.png'],
    ['carte.api','Indirizzo dell’app web delle carte','u',1,'Quello che finisce con /exec'],
-   ['paroleVietate','Parole bloccate in chat e guestbook','V',1,'Minuscole, separate da virgola']]}
+   ['chat.api','Indirizzo dell’app web della chat','u',1,'Quello del foglio “Chat e Commenti”, finisce con /exec. Vuoto = chat solo di prova, sul dispositivo di chi scrive'],
+   ['chat.ogniSecondi','Ogni quanti secondi si aggiorna la chat','n',0,'Di norma 5'],
+   ['paroleVietate','Parole bloccate anche prima dell’invio','V',1,'Facoltativo: le parole vietate vere stanno nella scheda Impostazioni del foglio della chat']]}
 ];
 
 let D=null,cur='canale',dirty=false;
@@ -176,7 +178,7 @@ function check(){
   (D.link||[]).forEach(l=>{if(l.titolo&&!/^https?:\/\//.test(l.url||''))w.push('Link “'+l.titolo+'”: l’indirizzo deve iniziare con https://')});
   return w;
 }
-function load(obj,from){D=obj;['link','weekly','news','amici','brani','novita','paroleVietate'].forEach(k=>{if(!Array.isArray(D[k]))D[k]=[]});['canale','prossimaLive','stati','repliche','video','carte','privacy'].forEach(k=>{if(!D[k]||typeof D[k]!=='object')D[k]={}});if(!Array.isArray(D.video.lista))D.video.lista=[];
+function load(obj,from){D=obj;['link','weekly','news','amici','brani','novita','paroleVietate'].forEach(k=>{if(!Array.isArray(D[k]))D[k]=[]});['canale','prossimaLive','stati','repliche','video','carte','privacy','chat'].forEach(k=>{if(!D[k]||typeof D[k]!=='object')D[k]={}});if(!Array.isArray(D.video.lista))D.video.lista=[];
   $('origin').textContent=from;dirty=false;$('dirty').textContent='';render()}
 
 document.addEventListener('input',e=>{const el=e.target,p=el.dataset&&el.dataset.p;if(!p||!D)return;set(D,p,el.type==='checkbox'?el.checked:fromText(el.dataset.t,el.value));mark();

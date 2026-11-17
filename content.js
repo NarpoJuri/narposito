@@ -1,5 +1,5 @@
-/* CONTENUTI DEL SITO - generato con editor.html il 16/11/2026, 00:11:10.
-   Si modifica dall'editor (narpojuri.github.io/editor.html) oppure a mano. */
+/* CONTENUTI DEL SITO - generato con editor.html il 17/11/2026, 19:44:49.
+   Si modifica dall'editor ('+(location.host||'sito')+'/editor.html) oppure a mano. */
 window.NJC = {
   "canale": {
     "nome": "Narpo_Juri",
@@ -345,5 +345,9 @@ window.NJC = {
     }
   },
   "paroleVietate": [],
-  "amiciOspiti": true
+  "amiciOspiti": true,
+  "privacy": {},
+  "chat": {
+    "api": "https://script.google.com/macros/s/AKfycbyKy5TMwHHvuGAuiXPWBw8TTwvC_GhSigt1c1ti7l4dpHGUvwZ1zITA6IGAprYzv5DfjA/exec"
+  }
 };
