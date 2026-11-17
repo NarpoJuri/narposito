@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Narpo_Juri – il sito del canale</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jura:wght@500;700&family=Michroma&display=swap">
 <style>
 :root{--ink:#24123f;--mu:#5a4b78;--line:#d9c7f5;--vio:#6a2bd9;--mag:#c2187a;--acc:#ff71ce;--cy:#a9f5ff;--lcd:#b5f5e0;--soft:#f4ecff;--card:#fff;--tit:'Michroma',sans-serif}
 *{box-sizing:border-box}
@@ -194,6 +193,19 @@ figure{margin:0}figcaption{font-size:14px;color:var(--mu);padding-top:4px}
 #more div{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:16px 16px 26px;display:flex;flex-direction:column;gap:6px}
 #more a{display:flex;align-items:center;min-height:50px;padding:0 14px;border-radius:12px;background:var(--soft);text-decoration:none;font-weight:700}
 [hidden]{display:none!important}
+#ck{position:fixed;left:12px;right:12px;bottom:12px;z-index:60;max-width:760px;margin:0 auto;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:14px 44px 14px 16px;box-shadow:0 6px 0 var(--acc);display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+#ck p{flex:1 1 320px;font-size:15px}
+#ck .x{position:absolute;top:4px;right:6px;width:36px;height:36px;border:0;background:none;font-size:20px;cursor:pointer;color:var(--mu)}
+.ext{flex-direction:column;gap:12px;padding:18px;line-height:1.4}
+.ext label{font-size:14px;display:flex;gap:6px;align-items:center}
+.sbd{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
+.snd{background:var(--soft);border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.snd .btn{min-height:38px;padding:0 14px;font-size:14px}
+.pv table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+.pv th,.pv td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:8px 6px}
+.pv th{background:var(--soft)}.pv h2{font-family:var(--tit);font-weight:400;font-size:16px;margin:22px 0 8px}
+.pv p,.pv li{max-width:760px}.pv .tw{overflow-x:auto}
+.todo{background:#ffe3f3;border-radius:6px;padding:0 6px;font-weight:700}
 .note{background:#fff8d6;border:1px solid #e3cf7a;border-radius:10px;padding:8px 12px;font-size:14px}
 
 /* ===== IMPOSTAZIONE TELEFONO ===== */
@@ -206,6 +218,7 @@ body{font-size:16px}
 .mtop a.nm{font-family:var(--tit);font-size:14px;color:var(--ink);text-decoration:none;flex:1}
 .mtop .btn{min-height:38px;padding:0 14px;font-size:10px}
 .mtop .np{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--soft)}
+.tabbar~#ck,#ck{bottom:80px}
 .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);padding:4px 4px 8px}
 .tabbar a,.tabbar button{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:54px;justify-content:center;font-size:11px;font-weight:700;text-decoration:none;color:var(--mu);background:none;border:0;border-radius:12px}
 .tabbar [aria-current]{color:var(--vio);background:var(--soft)}
@@ -246,6 +259,11 @@ body{font-size:16px}
   <p class="mu" id="imotto"></p>
   <button class="btn mag" data-a="enter" style="min-height:54px;padding:0 44px;font-size:15px">ENTRA</button>
 </div>
+<div id="ck" hidden role="dialog" aria-labelledby="ckt">
+  <button class="x" data-a="cksi" data-v="0" aria-label="Chiudi: solo contenuti necessari">✕</button>
+  <p id="ckt"><b>Cookie e contenuti esterni.</b> Questo sito non usa cookie di profilazione né statistiche. La live di Twitch e i video di YouTube (anteprime comprese) possono usare cookie loro: li carico solo se accetti. <a href="#privacy">Informativa</a></p>
+  <div class="chips"><button class="btn" data-a="cksi" data-v="1">Accetta contenuti esterni</button><button class="btn gh" data-a="cksi" data-v="0">Solo necessari</button></div>
+</div>
 <div class="wrap">
   <nav class="top" aria-label="Menu del sito" id="top"></nav>
   <div class="mtop" id="mtop"></div>
@@ -254,7 +272,7 @@ body{font-size:16px}
 </div>
 <nav class="tabbar" aria-label="Menu del sito" id="tabbar"></nav>
 <div id="more" hidden data-a="more"><div>
-  <a class="mo" href="#news">News e articoli</a><a class="mo" href="#video">Video</a><a href="#carte">Carte collezionabili</a><a href="#chat">Chat e guestbook</a><a href="#amici">Canali amici</a>
+  <a class="mo" href="#news">News e articoli</a><a class="mo" href="#video">Video</a><a href="#suoni">Sound alert</a><a href="#carte">Carte collezionabili</a><a href="#chat">Chat e guestbook</a><a href="#amici">Canali amici</a>
   <button class="btn gh" data-a="more">Chiudi</button>
 </div></div>
 
@@ -306,7 +324,7 @@ window.NJcovers=()=>document.querySelectorAll('[data-cv]').forEach(el=>{const b=
 const gcard=(g,extra)=>`<a class="g" href="#gioco-${g.slug}">${cover(g)}<b>${esc(g.k)}</b><span class="mu sm">${esc(g.c.slice(0,2).join(', ')||'—')}${extra?' · '+extra+' live':''}</span>${stB(g)}</a>`;
 const rndGame=()=>G[Math.floor(Math.random()*G.length)];
 
-const S={q:'',fy:'',fc:'',fr:'',fs:'',sort:'n',page:0,rnd:rndGame(),nf:'',nt:'',nm:'',np:0,vt:'video',vs:0,ring:0,cs:0,cr:'',cn:'',bt:'giochi',bk:'',bl:30,sx:null,sl:0,slp:false};
+const S={q:'',fy:'',fc:'',fr:'',fs:'',sort:'n',page:0,rnd:rndGame(),nf:'',nt:'',nm:'',np:0,vt:'video',vs:0,ring:0,ext:{},cs:0,cr:'',cn:'',bt:'giochi',bk:'',bl:30,sx:null,sl:0,slp:false};
 const H=(t)=>`<h2 class="h"><i></i>${t}</h2>`;
 const IC={
  backlog:'<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="3"><circle cx="22" cy="22" r="18"/><circle cx="22" cy="22" r="5"/></svg>',
@@ -477,12 +495,93 @@ PG.home=()=>{
    <section class="card">${H('News e articoli')}<div class="nl">${NW.slice(0,3).map(n=>`<a href="#articolo-${esc(n.id)}"><b>${esc(n.titolo)}</b><br><span class="mu">${dt(n.data)} · ${n.tipo}</span></a>`).join('')}</div></section>
   </div>`;
 };
+/* ---------- consenso per i contenuti esterni (Twitch, YouTube) ---------- */
+const PV=C.privacy||{},CKV=1,CK_GIORNI=180;
+const ckGet=()=>{const c=LS.get('consenso',null);return c&&c.v===CKV&&Date.now()-c.t<CK_GIORNI*864e5?c:null};
+const extOk=k=>{const c=ckGet();return !!((c&&c.esterni)||S.ext[k])};
+function ckSet(si){LS.set('consenso',{v:CKV,t:Date.now(),esterni:!!si});$('ck').hidden=true;render(false)}
+const extBox=(k,cosa,ratio)=>`<div class="ph ext" style="${ratio}"><span>Per vedere ${cosa} qui serve caricare il contenuto di ${k==='twitch'?'Twitch':'YouTube'}, che può usare cookie suoi.</span>
+  <button class="btn" data-a="ext" data-v="${k}">Carica ${k==='twitch'?'la live':'il video'}</button><label><input type="checkbox" id="extrem-${k}"> ricorda la scelta per tutto il sito</label><a href="#privacy">Informativa privacy</a></div>`;
+(function(){ // font: da Google Fonts, oppure dalla cartella fonts/ del sito se privacy.fontLocali è attivo
+  if(PV.fontLocali){const st=document.createElement('style');st.textContent="@font-face{font-family:'Jura';font-weight:500;font-display:swap;src:url(fonts/jura-500.woff2) format('woff2')}@font-face{font-family:'Jura';font-weight:700;font-display:swap;src:url(fonts/jura-700.woff2) format('woff2')}@font-face{font-family:'Michroma';font-weight:400;font-display:swap;src:url(fonts/michroma-400.woff2) format('woff2')}";document.head.appendChild(st)}
+  else{const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Jura:wght@500;700&family=Michroma&display=swap';document.head.appendChild(l)}
+})();
+
+/* ---------- sound alert: elenco dal foglio Suoni, coda letta da Streamer.bot ---------- */
+const SD={d:null,at:0,busy:false,msg:'',until:0,err:false};let PRV=null,PRVid='';
+const sNick=()=>{const el=$('snick');return (el?el.value:LS.get('nick','')).trim().replace(/^@/,'').toLowerCase()};
+function loadSuoni(force){
+  if(!C.carte.api||SD.busy||(!force&&Date.now()-SD.at<15000))return;SD.busy=true;
+  jsonp(C.carte.api+'?api=suoni&u='+encodeURIComponent(sNick()),d=>{SD.busy=false;SD.at=Date.now();
+    if(d&&d.ok){SD.d=d;SD.err=false;if(d.attesa)SD.until=Math.max(SD.until,Date.now()+d.attesa*1000)}else SD.err=true;drawSuoni()});
+}
+function suoniInner(){
+  const d=SD.d,w=Math.max(0,Math.ceil((SD.until-Date.now())/1000)),on=!!(d&&d.online);
+  const stato=!C.carte.api?'Sound alert non ancora collegati.':!d?(SD.err?'Non riesco a raggiungere l’elenco dei suoni: riprovo tra poco.':'Carico i suoni…')
+    :on?'🟢 Live attiva: i suoni vanno in coda e partono in diretta.'+(d.coda?' In coda adesso: '+d.coda+'.':''):'⚪ I suoni si possono riscattare solo durante la live.';
+  return `<p role="status">${stato}</p>
+   <form class="bform" data-snd style="margin-top:12px"><div class="fl w"><label for="snick">Il tuo nome utente Twitch</label><input class="in" id="snick" name="nick" maxlength="26" autocomplete="off" value="${esc(LS.get('nick',''))}"></div></form>
+   ${d&&d.suoni.length?`<div class="sbd">${d.suoni.map(x=>`<div class="snd"><b>${esc(x.nome)}</b>${x.descrizione?`<span class="mu sm">${esc(x.descrizione)}</span>`:''}
+     <div class="chips" style="margin-top:auto">${x.anteprima?`<button class="btn gh" data-a="sprev" data-v="${esc(x.id)}" aria-label="Ascolta l’anteprima di ${esc(x.nome)}">${PRVid===x.id?'■ Ferma':'▶ Ascolta'}</button>`:''}
+     <button class="btn mag" data-a="snd" data-v="${esc(x.id)}"${!on||w?' disabled':''}>Riscatta</button></div></div>`).join('')}</div>`:d?'<p class="mu" style="margin-top:12px">Nessun suono disponibile, per ora.</p>':''}
+   <p class="sm" style="margin-top:12px" role="status">${esc(SD.msg)}${w?` <span class="mu">Prossimo suono tra <b data-sw>${w}</b> s.</span>`:''}</p>
+   ${d?`<p class="mu sm" style="margin-top:4px">Gratis: dopo un riscatto aspetti ${d.attesaSecondi} secondi prima del prossimo.</p>`:''}`;
+}
+function drawSuoni(){const el=$('sboard');if(!el)return;const a=document.activeElement;if(a&&a.id==='snick')return;el.innerHTML=suoniInner()}
+const suoniBox=()=>C.carte.api?`<section class="card">${H('Sound alert')}<div id="sboard">${suoniInner()}</div></section>`:'';
+setInterval(()=>{if(!$('sboard'))return;if(!document.hidden)loadSuoni();const w=Math.max(0,Math.ceil((SD.until-Date.now())/1000)),b=document.querySelector('[data-sw]');if(b&&w)b.textContent=w;else if(b||(!w&&SD.until)){if(!w)SD.until=0;drawSuoni()}},1000);
+PG.suoni=()=>{setTimeout(()=>loadSuoni(true),0);return `<section class="card"><h1 class="pt">Sound alert</h1><p class="mu" style="margin-top:6px">Durante la live scegli un suono: va in coda e parte in diretta.</p></section>${suoniBox()}`};
+
+/* ---------- informativa privacy e cookie ---------- */
+const HOSTS={github:['GitHub Pages','GitHub Inc.','GitHub','https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement'],
+  cloudflare:['Cloudflare Pages','Cloudflare Inc.','Cloudflare','https://www.cloudflare.com/privacypolicy/']};
+function hosting(){const s=String(PV.hosting||'').toLowerCase(),h=location.hostname;
+  return HOSTS[/cloudflare/.test(s)?'cloudflare':/github/.test(s)?'github':/\.pages\.dev$/.test(h)?'cloudflare':'github']}
+PG.privacy=()=>{
+  const HO=hosting();
+  const tit=PV.titolare?esc(PV.titolare):'<span class="todo">[da completare]</span>',con=PV.contatto?(/^https?:/.test(PV.contatto)?`<a href="${esc(PV.contatto)}">${esc(PV.contatto)}</a>`:/@/.test(PV.contatto)?`<a href="mailto:${esc(PV.contatto)}">${esc(PV.contatto)}</a>`:esc(PV.contatto)):'<span class="todo">[da completare]</span>';
+  const agg=/^\d{4}-\d{2}-\d{2}$/.test(PV.aggiornata||'')?PV.aggiornata:'2026-11-17',c=ckGet();
+  const L=(t,u)=>`<a href="${u}">${t}</a>`;
+  return `<section class="card pv"><h1 class="pt">Privacy e cookie</h1><p class="mu" style="margin-top:6px">Informativa ai sensi del Regolamento UE 2016/679 (GDPR) · aggiornata il ${dtl(agg)}</p>
+  <h2>Chi gestisce il sito</h2><p>Titolare del trattamento: ${tit}. Contatto: ${con}. Puoi scrivere qui per qualsiasi domanda o richiesta sui tuoi dati.</p>
+  <h2>In breve</h2><ul><li>Il sito non ha account, non usa statistiche e non usa cookie di profilazione o pubblicità.</li><li>La live di Twitch e i video di YouTube si caricano solo se lo accetti, perché quei servizi possono usare cookie loro.</li><li>Il nome utente Twitch lo scrivi tu, solo se vuoi vedere le tue carte o riscattare un suono.</li></ul>
+  <h2>Quali dati e perché</h2><ul>
+   <li><b>Dati di navigazione.</b> Il sito è ospitato su ${HO[0]}: come ogni server, ${HO[2]} riceve il tuo indirizzo IP e i dati tecnici della richiesta per mostrarti le pagine e per sicurezza.</li>
+   <li><b>Nome utente Twitch sul sito.</b> Se lo scrivi nelle pagine Carte collezionabili o Sound alert, viene inviato all’app del canale (Google Apps Script) per mostrarti la collezione o mettere in coda il suono. I suoni riscattati vengono annotati con nome utente, suono e ora in un foglio Google gestito dal titolare.</li>
+   <li><b>Gioco delle carte in live.</b> Se riscatti un pacchetto con i punti canale o usi i comandi delle carte in chat, il bot del canale salva in un foglio Google il tuo nome utente e il tuo ID Twitch, con le carte che possiedi, i pacchetti aperti, gli scambi e i regali. Le collezioni sono visibili a chiunque cerchi quel nome utente, sul sito e nell’album delle carte.</li>
+   <li><b>Chat, guestbook e commenti del sito.</b> Per ora restano solo nel tuo browser: nessuno li riceve.</li></ul>
+  <p>Basi giuridiche: il servizio che chiedi tu (carte, suoni) e il legittimo interesse a far funzionare e proteggere il sito; il consenso per i contenuti di Twitch e YouTube. Il registro dei suoni e le collezioni restano finché servono al gioco del canale o finché ne chiedi la cancellazione.</p>
+  <h2>Servizi esterni</h2><div class="tw"><table><thead><tr><th>Servizio</th><th>A cosa serve</th><th>Quando</th><th>Informativa</th></tr></thead><tbody>
+   <tr><td>${HO[0]} (${HO[1]})</td><td>Ospita il sito</td><td>Sempre</td><td>${L(HO[2],HO[3])}</td></tr>
+   <tr><td>Google Fonts</td><td>I caratteri del sito</td><td>${PV.fontLocali?'Non usato: i caratteri sono sul sito':'Sempre'}</td><td>${L('Google','https://policies.google.com/privacy')}</td></tr>
+   <tr><td>Google Apps Script e Google Drive</td><td>Carte, sound alert, ultimi video, immagini delle carte</td><td>Solo nelle pagine Carte collezionabili, Sound alert, Live e Video</td><td>${L('Google','https://policies.google.com/privacy')}</td></tr>
+   <tr><td>YouTube</td><td>Anteprime e lettore dei video</td><td>Solo con il tuo consenso</td><td>${L('Google','https://policies.google.com/privacy')}</td></tr>
+   <tr><td>Twitch (Twitch Interactive)</td><td>Player e chat della live, solo con il tuo consenso</td><td>Pagina Live</td><td>${L('Twitch','https://www.twitch.tv/p/legal/privacy-notice/')}</td></tr>
+   <tr><td>jsDelivr</td><td>La libreria che mostra la copertina del Weekly dal PDF</td><td>Solo se la copertina di un volume non è caricata come immagine</td><td>${L('jsDelivr','https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net')}</td></tr>
+  </tbody></table></div>
+  <p>Alcuni di questi servizi hanno sede fuori dall’Unione europea, negli Stati Uniti; i trasferimenti avvengono con le garanzie previste dal GDPR.</p>
+  <h2>Cookie e memoria del browser</h2><p>Il sito salva nel tuo browser solo informazioni tecniche, che servono a farlo funzionare e non richiedono consenso:</p><div class="tw"><table><thead><tr><th>Nome</th><th>A cosa serve</th><th>Durata</th></tr></thead><tbody>
+   <tr><td>nj.consenso</td><td>La tua scelta sui contenuti esterni</td><td>6 mesi</td></tr>
+   <tr><td>nj.intro</td><td>Ricorda che hai già visto la pagina di entrata</td><td>Finché non cancelli i dati del sito</td></tr>
+   <tr><td>nj.nick</td><td>Il nome utente scritto nei moduli, per non riscriverlo</td><td>Finché non cancelli i dati del sito</td></tr>
+   <tr><td>nj.chat, nj.guestbook, nj.ytc</td><td>I messaggi che scrivi nel sito, solo su questo dispositivo</td><td>Finché non cancelli i dati del sito</td></tr>
+   <tr><td>nj.visite, nj.v</td><td>Il contatore delle tue visite, solo su questo dispositivo</td><td>Finché non cancelli i dati del sito</td></tr>
+   <tr><td>nj.wk…</td><td>Le copertine del Weekly già preparate</td><td>Fino alla chiusura della scheda</td></tr>
+  </tbody></table></div>
+  <p>Se carichi la live o un video, Twitch e YouTube possono salvare cookie propri, secondo le loro informative.</p>
+  <p><b>La tua scelta attuale:</b> ${c?(c.esterni?'contenuti esterni accettati':'solo contenuti necessari')+' (dal '+new Date(c.t).toLocaleDateString('it-IT')+')':'nessuna scelta salvata'}. <button class="btn gh" data-a="ckopen" style="margin-left:6px">Cambia le preferenze</button></p>
+  <h2>I tuoi diritti</h2><p>Puoi chiedere al titolare di accedere ai tuoi dati, correggerli, cancellarli, limitarne l’uso o opporti al trattamento, e puoi ritirare il consenso quando vuoi dalle preferenze. Se pensi che i tuoi dati siano trattati in modo scorretto puoi rivolgerti al ${L('Garante per la protezione dei dati personali','https://www.garanteprivacy.it')}.</p>
+  <p>I dati salvati nel tuo browser li puoi cancellare tu, dalle impostazioni del browser.</p></section>`;
+};
+
 PG.live=()=>{
   const ch=(CH.twitch.replace(/\/+$/,'').split('/').pop()||'').toLowerCase(),host=location.hostname,ok=location.protocol==='https:'&&host&&!/claude|anthropic/.test(host),pl=C.prossimaLive,r=R[0];
+  setTimeout(()=>loadSuoni(true),0);
   const off=(t,c)=>`<div class="ph" style="${c?'min-height:220px;height:100%':'aspect-ratio:16/9'}">${t}</div>`;
   return `<section class="card"><h1 class="pt">Live</h1><p class="mu" style="margin-top:6px">Guarda la diretta di ${esc(CH.nome)} senza uscire dal sito.</p></section>
-  <div class="lv"><div class="pl">${ok?`<iframe src="https://player.twitch.tv/?channel=${esc(ch)}&parent=${esc(host)}" allowfullscreen title="Live Twitch di ${esc(CH.nome)}"></iframe>`:off('Qui compare il player Twitch<br>quando il sito è online sul suo indirizzo.')}</div>
-   <div class="ch">${ok?`<iframe src="https://www.twitch.tv/embed/${esc(ch)}/chat?parent=${esc(host)}" title="Chat Twitch"></iframe>`:off('Qui compare la chat Twitch.',1)}</div></div>
+  <div class="lv"><div class="pl">${ok&&!extOk('twitch')?extBox('twitch','la live','aspect-ratio:16/9'):ok?`<iframe src="https://player.twitch.tv/?channel=${esc(ch)}&parent=${esc(host)}" allowfullscreen title="Live Twitch di ${esc(CH.nome)}"></iframe>`:off('Qui compare il player Twitch<br>quando il sito è online sul suo indirizzo.')}</div>
+   <div class="ch">${ok&&!extOk('twitch')?extBox('twitch','la chat','min-height:220px;height:100%'):ok?`<iframe src="https://www.twitch.tv/embed/${esc(ch)}/chat?parent=${esc(host)}" title="Chat Twitch"></iframe>`:off('Qui compare la chat Twitch.',1)}</div></div>
+  ${suoniBox()}
   <div class="row"><section class="card">${H('Guarda altrove')}<div class="chips"><a class="btn mag" href="${esc(CH.twitch)}">Apri su Twitch</a><a class="btn gh" href="${esc(CH.youtube)}">YouTube</a>${CH.tiktok?`<a class="btn gh" href="${esc(CH.tiktok)}">TikTok</a>`:''}</div></section>
    <section class="card">${H('Programma')}<div class="lcd"><b>ON AIR</b><span>prossima live: ${esc(pl.quando||'calendario in arrivo')}</span><span>${esc(pl.gioco||'')}</span></div><p style="margin-top:12px"><span class="mu">Ultima live · ${dt(r[0])}</span><br><b>${esc(r[2])}</b></p></section></div>`;
 };
@@ -607,22 +706,23 @@ function loadVideo(){
     if(d&&d.ok&&d.video&&d.video.length){VD.d=d;const a=document.activeElement;if(['video','home'].includes(route().p)&&!(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))render(false)}});
 }
 function vdata(){
-  const V=C.video;if(!VD.d)return{V,L:V.lista};
+  const V=C.video;
+  if(!VD.d){const Z=D.VID||[];return{V,L:Z.length?Z.map(v=>({id:v.id,titolo:v.titolo,durata:'',data:v.data?dt(v.data):'',viste:v.viste!=null?nf(v.viste):'',link:'https://www.youtube.com/watch?v='+v.id,descrizione:v.descrizione||'',thumb:'https://i.ytimg.com/vi/'+v.id+'/mqdefault.jpg'})):V.lista}}
   const c=VD.d.canale||{},n=(x,old)=>x!=null?nf(x):old;
   return{V:Object.assign({},V,{iscrittoDal:c.iscrittoDal?dt(c.iscrittoDal):V.iscrittoDal,caricati:n(c.video,V.caricati),iscritti:n(c.iscritti,V.iscritti),visualizzazioni:n(c.visualizzazioni,V.visualizzazioni),descrizione:c.descrizione||V.descrizione}),
     L:VD.d.video.map(v=>({id:v.id,titolo:v.titolo,durata:v.durata||'',data:v.data?dt(v.data):'',viste:v.viste!=null?nf(v.viste):'',link:v.link,descrizione:v.descrizione||'',thumb:v.anteprima}))};
 }
-const thumb=x=>x.thumb?`<img src="${esc(x.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.remove()">`:'';
+const thumb=x=>x.thumb&&extOk('youtube')?`<img src="${esc(x.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.remove()">`:'';
 PG.video=()=>{
   loadVideo();
   const X=vdata(),V=X.V,L=X.L,v=L[S.vs]||L[0],d=x=>esc(x||'—'),yt=esc(CH.youtube);
   const PL=(VD.d&&VD.d.playlist)||[],PR=Object.keys(V.preferiti&&typeof V.preferiti==='object'?V.preferiti:{});
-  const emb=v.id&&location.protocol==='https:'&&!/claude|anthropic/.test(location.hostname);
+  const embOk=v.id&&location.protocol==='https:'&&!/claude|anthropic/.test(location.hostname),emb=embOk&&extOk('youtube');
   const tabs=[['video','Video'],['preferiti','Preferiti'],['playlist','Playlist'],['iscritti','Iscritti'],['commenti','Commenti']];
   const comm=`<h3>Commenti del canale</h3><div class="bx">${board('ytc',{empty:'Nessun commento: lascia il primo.',label:'Commento',btn:'Commenta'})}</div>`;
   const body=S.vt==='video'?`<h3>Video in primo piano</h3><div class="bx">${emb?`<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}" title="${esc(v.titolo)}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;aspect-ratio:16/9;border:0;display:block;background:#000"></iframe>`
      :`<a class="scr" href="${esc(v.link)||yt}" style="position:relative;overflow:hidden">${thumb(v)}<span style="position:relative;background:#000a;padding:6px 12px">▶ ${esc(v.titolo)}<br><small>si apre su YouTube</small></span></a>
-     <div class="ctl" aria-hidden="true">▶ <i></i> ${d(v.durata)} 🔊</div>`}<p style="margin-top:8px"><b>${esc(v.titolo)}</b></p><p><span class="stars" aria-label="Valutazione">★★★★☆</span> · Visualizzazioni: ${d(v.viste)} · Aggiunto: ${d(v.data)}</p><p style="margin-top:6px">${esc(v.descrizione||'')}</p></div>
+     <div class="ctl" aria-hidden="true">▶ <i></i> ${d(v.durata)} 🔊</div>${embOk?`<p style="margin-top:6px"><button class="lk" data-a="ext" data-v="youtube" style="padding:4px 0">▶ Guarda qui sul sito</button> <span style="color:#666">(carica il lettore di YouTube, che può usare cookie suoi)</span></p>`:''}`}<p style="margin-top:8px"><b>${esc(v.titolo)}</b></p><p><span class="stars" aria-label="Valutazione">★★★★☆</span> · Visualizzazioni: ${d(v.viste)} · Aggiunto: ${d(v.data)}</p><p style="margin-top:6px">${esc(v.descrizione||'')}</p></div>
      <h3>${VD.d?'Ultimi video':'Tutti i video'} (${L.length})</h3><div class="bx"><div class="vgr">${L.map((x,i)=>`<div><button data-a="vs" data-v="${i}" class="th" style="width:100%;cursor:pointer;overflow:hidden" aria-label="Metti in primo piano: ${esc(x.titolo)}">▶${thumb(x)}${x.durata?`<span>${esc(x.durata)}</span>`:''}</button><button class="lk" data-a="vs" data-v="${i}" style="padding:4px 0;text-align:left;font-weight:bold">${esc(x.titolo)}</button><div style="color:#666">${d(x.data)}<br>${d(x.viste)} visualizzazioni</div></div>`).join('')}</div></div>`
    :S.vt==='commenti'?comm
    :S.vt==='playlist'?`<h3>Playlist (${PL.length})</h3><div class="bx">${PL.length?`<div class="vgr">${PL.map(x=>`<div><a class="th" href="https://www.youtube.com/playlist?list=${esc(x.id)}" style="overflow:hidden;text-decoration:none" aria-label="Playlist: ${esc(x.titolo)}">▶${thumb({thumb:x.anteprima})}<span>${x.video} video</span></a><a href="https://www.youtube.com/playlist?list=${esc(x.id)}" style="display:block;padding:4px 0;font-weight:bold">${esc(x.titolo)}</a></div>`).join('')}</div>`:'<p>Nessuna playlist da mostrare, per ora.</p>'}</div>`
@@ -706,7 +806,7 @@ PG.carte=()=>{
     <p class="mu" style="margin-top:6px">Le carte del canale (${esc(CT.sigla)}): si trovano nei pacchetti riscattati in live con i punti canale.</p></div><a class="btn mag" href="#live">Vai in live a spacchettare</a></div><p class="mu sm" style="margin-top:10px" role="status">${stato}</p></section>
   <section class="card">${H('La mia collezione')}<form class="bform" data-cn><div class="fl w"><label for="cnick">Il tuo nome utente Twitch</label><input class="in" id="cnick" name="nick" maxlength="26" value="${esc(S.cn)}" autocomplete="off"></div><button class="btn" style="flex:0 1 130px">Mostra</button></form>
    ${own?`<p style="margin-top:12px"><b>${esc(d.nome)}</b></p><div class="stats" style="margin-top:8px"><div><b>${avute}/${tutte}</b>carte diverse</div><div><b>${Math.round(avute/Math.max(1,tutte)*100)}%</b>dell’album</div><div><b>${d.totale}</b>carte in tutto</div><div><b>${dopp}</b>doppioni</div></div>
-     ${d.buoni&&d.buoni.quanti?`<p class="note" style="margin-top:12px">📦 Hai ${d.buoni.quanti} ${d.buoni.quanti===1?'pacchetto scambio in arrivo: si aprirà da solo':'pacchetti scambio in arrivo: si apriranno da soli'} in diretta${d.buoni.dalle?', dalle '+esc(d.buoni.dalle):''}.</p>`:''}`
+     ${d.buoni&&d.buoni.quanti?`<p class="note" style="margin-top:12px">${d.buoni.regali?'🎁':'📦'} Hai ${d.buoni.quanti} ${d.buoni.quanti===1?'pacchetto in arrivo':'pacchetti in arrivo'}${d.buoni.regali?(d.buoni.regali===d.buoni.quanti?(d.buoni.quanti===1?', regalato da '+esc(CH.nome):', regalati da '+esc(CH.nome)):' (di cui '+d.buoni.regali+' in regalo)'):''}: ${d.buoni.quanti===1?'si aprirà da solo':'si apriranno da soli'} in diretta${d.buoni.dalle?', dalle '+esc(d.buoni.dalle):''}.</p>`:''}`
    :`<p style="margin-top:10px" role="status">${!nick?'<span class="mu">Le carte restano coperte finché non le trovi: scrivi il tuo nome utente per scoprire le tue.</span>':wait?'Cerco la tua collezione…':mine?`Nessuna carta trovata per <b>${esc(S.cn)}</b>.`:'Le collezioni non sono raggiungibili in questo momento.'}</p>`}</section>
   <div class="chips">${chip('cr','','Tutte le rarità',!S.cr)}${d.rarita.map((r,i)=>chip('cr',r.nome,rdot(i)+esc(r.nome),S.cr===r.nome)).join('')}</div>
   ${d.set.map(sezione).join('')||'<section class="card"><p class="mu">Nessun set disponibile, per ora.</p></section>'}
@@ -735,11 +835,11 @@ function route(){const h=location.hash.slice(1)||'home';
 let curP='';
 function render(scroll){
   const r=route(),cur=p=>r.p===p?' aria-current="page"':'';
-  $('top').innerHTML=`<a class="nm" href="#home">${esc(CH.nome)}</a>${MENU.map(m=>`<a class="n" href="#${m[0]}"${cur(m[0])}>${m[1]}</a>`).join('')}<button class="n" data-a="more"${['carte','chat','amici','segreto'].includes(r.p)?' aria-current="page"':''}>Altro</button><button class="np" data-a="play" hidden></button>`;
+  $('top').innerHTML=`<a class="nm" href="#home">${esc(CH.nome)}</a>${MENU.map(m=>`<a class="n" href="#${m[0]}"${cur(m[0])}>${m[1]}</a>`).join('')}<button class="n" data-a="more"${['suoni','carte','chat','amici','segreto','privacy'].includes(r.p)?' aria-current="page"':''}>Altro</button><button class="np" data-a="play" hidden></button>`;
   $('mtop').innerHTML=`<a class="nm" href="#home">${esc(CH.nome)}</a><button class="np" data-a="play" aria-label="Pausa musica" hidden></button><a class="btn mag" href="#live">LIVE</a>`;
-  $('tabbar').innerHTML=[['home','Home'],['live','Live'],['backlog','Backlog'],['weekly','Weekly']].map(m=>`<a href="#${m[0]}"${cur(m[0])}>${IC[m[0]]}${m[1]}</a>`).join('')+`<button data-a="more"${['news','video','carte','chat','amici','segreto'].includes(r.p)?' aria-current="page"':''}>${IC.more}Altro</button>`;
+  $('tabbar').innerHTML=[['home','Home'],['live','Live'],['backlog','Backlog'],['weekly','Weekly']].map(m=>`<a href="#${m[0]}"${cur(m[0])}>${IC[m[0]]}${m[1]}</a>`).join('')+`<button data-a="more"${['news','video','suoni','carte','chat','amici','segreto','privacy'].includes(r.p)?' aria-current="page"':''}>${IC.more}Altro</button>`;
   $('view').innerHTML=r.html();
-  $('foot').innerHTML=`<span>${esc(CH.nome)} · in live da ${YEARS} anni</span><span>le tue visite: ${nf(LS.get('visite',1))}</span><nav aria-label="Altri link"><a class="lk" href="#amici">canali amici</a><a class="lk" href="${esc(CH.twitch)}">Twitch</a><a class="lk" href="${esc(CH.youtube)}">YouTube</a>${CH.tiktok?`<a class="lk" href="${esc(CH.tiktok)}">TikTok</a>`:''}<button class="lk" data-a="intro">rivedi l’intro</button></nav>`;
+  $('foot').innerHTML=`<span>${esc(CH.nome)} · in live da ${YEARS} anni</span><span>le tue visite: ${nf(LS.get('visite',1))}</span><nav aria-label="Altri link"><a class="lk" href="#privacy">privacy e cookie</a><button class="lk" data-a="ckopen">preferenze cookie</button><a class="lk" href="#amici">canali amici</a><a class="lk" href="${esc(CH.twitch)}">Twitch</a><a class="lk" href="${esc(CH.youtube)}">YouTube</a>${CH.tiktok?`<a class="lk" href="${esc(CH.tiktok)}">TikTok</a>`:''}<button class="lk" data-a="intro">rivedi l’intro</button></nav>`;
   renderBL();pUI();wkFill();
   if(scroll!==false){window.scrollTo(0,0);if(curP)$('view').focus({preventScroll:true})}
   curP=location.hash;
@@ -747,7 +847,7 @@ function render(scroll){
 window.addEventListener('hashchange',()=>{$('more').hidden=true;render()});
 
 const ACT={
-  enter(){$('intro').hidden=true;LS.set('intro',1)},
+  enter(){$('intro').hidden=true;LS.set('intro',1);if(!ckGet())$('ck').hidden=false},
   intro(){$('intro').hidden=false},
   more(){$('more').hidden=!$('more').hidden},
   rnd(){location.hash='gioco-'+rndGame().slug},
@@ -761,7 +861,18 @@ const ACT={
   sxgo(){const x=S.sx;if(!x||!CT.api)return;x.out={msg:'Preparo lo scambio…',wait:true};render(false);
     jsonp(CT.api+'?api=scambio&u='+encodeURIComponent(cNick())+'&set='+encodeURIComponent(x.set)+'&scelte='+encodeURIComponent(JSON.stringify(x.sel)),r=>{if(S.sx!==x)return;
       x.out=!r?{msg:'Non riesco a preparare lo scambio in questo momento: riprova.'}:r.ok?{cmd:((CA.d&&CA.d.cmd)||'!scambia')+' '+r.codice,min:r.minuti}:{msg:r.errore||'Scambio non riuscito.'};render(false)})},
-  sxcopy(){const t=S.sx&&S.sx.out&&S.sx.out.cmd;if(!t)return;const no=()=>$('sxok').textContent='Selezionalo e copialo a mano.';try{navigator.clipboard.writeText(t).then(()=>$('sxok').textContent='Copiato.',no)}catch(e){no()}},vt(v){S.vt=v;render(false)},vpick(v){S.vs=+v;S.vt='video'},vs(v){S.vs=+v;S.vt='video';render()},
+  sxcopy(){const t=S.sx&&S.sx.out&&S.sx.out.cmd;if(!t)return;const no=()=>$('sxok').textContent='Selezionalo e copialo a mano.';try{navigator.clipboard.writeText(t).then(()=>$('sxok').textContent='Copiato.',no)}catch(e){no()}},vt(v){S.vt=v;render(false)},
+  cksi(v){ckSet(v==='1')},ckopen(){$('ck').hidden=false;const b=$('ck').querySelector('.btn');if(b)b.focus()},
+  ext(v){const r=$('extrem-'+v);if(r&&r.checked)ckSet(true);else{S.ext[v]=true;render(false)}},
+  sprev(v){const x=SD.d&&SD.d.suoni.find(y=>y.id===v);if(PRV){PRV.pause();PRV=null}if(PRVid===v||!x){PRVid='';drawSuoni();return}
+    PRVid=v;try{PRV=new Audio(x.anteprima);PRV.onended=()=>{PRVid='';PRV=null;drawSuoni()};PRV.play().catch(()=>{PRVid='';PRV=null;SD.msg='Anteprima non disponibile.';drawSuoni()})}catch(e){PRVid=''}drawSuoni()},
+  snd(v){const u=sNick();if(!/^[a-z0-9_]{3,25}$/.test(u)){SD.msg='Scrivi il tuo nome utente Twitch.';drawSuoni();const i=$('snick');if(i)i.focus();return}
+    LS.set('nick',u);SD.msg='Metto il suono in coda…';drawSuoni();
+    jsonp(C.carte.api+'?api=suono&u='+encodeURIComponent(u)+'&s='+encodeURIComponent(v),r=>{
+      if(!r)SD.msg='Non riesco a raggiungere Streamer.bot in questo momento: riprova.';
+      else if(r.ok){SD.msg='🔊 «'+r.nome+'» è in coda'+(r.posizione>1?' (posizione '+r.posizione+')':'')+': parte in diretta tra poco.';SD.until=Date.now()+r.attesa*1000;if(SD.d)SD.d.coda=r.posizione}
+      else{SD.msg=r.errore||'Riscatto non riuscito.';if(r.attesa)SD.until=Date.now()+r.attesa*1000;if(r.chiuso&&SD.d)SD.d.online=false}
+      drawSuoni()})},vpick(v){S.vs=+v;S.vt='video'},vs(v){S.vs=+v;S.vt='video';render()},
   ring(v){const n=amici().length;S.ring=+v?(S.ring+ +v+n)%n:Math.floor(Math.random()*n);render(false)},
   copy(){const t=$('lcode');const ok=()=>$('cpok').textContent='Copiato.';try{navigator.clipboard.writeText(t.value).then(ok,()=>{t.select();$('cpok').textContent='Seleziona e copia a mano.'})}catch(e){t.select();$('cpok').textContent='Seleziona e copia a mano.'}},
   play(){if(P.on){P.on=false;pStop();pUI()}else pStart()},
@@ -771,7 +882,7 @@ const ACT={
   egg(){ACT.egg.n=(ACT.egg.n||0)+1;if(ACT.egg.n>=7){ACT.egg.n=0;location.hash='segreto'}}
 };
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&ACT[b.dataset.a])ACT[b.dataset.a](b.dataset.v,b,e)});
-document.addEventListener('submit',e=>{e.preventDefault();if(e.target.dataset.board)post(e.target);else if(e.target.dataset.cn!=null){S.cn=e.target.nick.value;S.sx=null;CA.at=0;render(false)}});
+document.addEventListener('submit',e=>{e.preventDefault();if(e.target.dataset.board)post(e.target);else if(e.target.dataset.snd!=null){const b=document.activeElement;if(b)b.blur();loadSuoni(true)}else if(e.target.dataset.cn!=null){S.cn=e.target.nick.value;S.sx=null;CA.at=0;render(false)}});
 const onF=e=>{const f=e.target.dataset&&e.target.dataset.f;if(f){S[f]=e.target.value;S.page=0;renderBL()}};
 document.addEventListener('input',onF);document.addEventListener('change',onF);
 const KON=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let kp=0;
@@ -782,8 +893,8 @@ let wasWide=wide();window.addEventListener('resize',()=>{if(wide()!==wasWide){wa
 try{if(!sessionStorage.getItem('nj.v')){sessionStorage.setItem('nj.v','1');LS.set('visite',LS.get('visite',0)+1)}}catch(e){}
 $('iring').innerHTML=mascot();$('iname').textContent=CH.nome;$('imotto').textContent=CH.motto;
 if(!LS.get('intro',0))$('intro').hidden=false;
+else if(!ckGet())$('ck').hidden=false;
 render(false);
-setTimeout(loadVideo,300);
 </script>
 <script src="covers.js" async onload="NJcovers()"></script>
 </body>

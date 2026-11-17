@@ -50,7 +50,7 @@ textarea{min-height:92px;resize:vertical;font-family:inherit}
 <div class="wrap">
   <header>
     <h1>Editor dei contenuti</h1>
-    <p class="mu" style="margin-top:4px">Compila i moduli, scarica il nuovo <b>content.js</b> e caricalo su GitHub al posto di quello vecchio (Add file → Upload files).</p>
+    <p class="mu" style="margin-top:4px">Compila i moduli, scarica il nuovo <b>content.js</b> e caricalo sul sito al posto di quello vecchio (su GitHub: Add file → Upload files).</p>
     <p class="sm" id="origin" style="margin-top:8px" role="status"></p>
     <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;align-items:center">
       <label class="btn gh" for="file">Apri un content.js dal PC</label><input id="file" type="file" accept=".js,text/javascript" hidden>
@@ -109,6 +109,12 @@ const SEZ=[
  {id:'giochi',t:'Giochi e repliche',h:'Correzioni a mano sul backlog.',obj:'',f:[
    ['stati','Stato dei giochi (solo per i casi particolari)','M',1,'Di norma lo stato si scrive nella colonna Finito della scheda Giochi del foglio (Sì, No, In corso). Quello che scrivi qui vince anche sul foglio. Uno per riga: Nome del gioco = finito  (oppure: in corso, non finito, abbandonato).'],
    ['repliche','Link alle repliche','M',1,'Uno per riga: 2026-11-09 = https://…']]},
+ {id:'privacy',t:'Privacy',h:'I dati che compaiono nella pagina “Privacy e cookie” del sito.',obj:'',f:[
+   ['privacy.titolare','Titolare del trattamento','t',1,'Il tuo nome e cognome, oppure il nome con cui gestisci il canale'],
+   ['privacy.contatto','Contatto per la privacy','t',1,'Un’email (meglio dedicata al canale) oppure un link'],
+   ['privacy.aggiornata','Informativa aggiornata il','d'],
+   ['privacy.hosting','Dove è ospitato il sito','s',0,'Automatico va bene per indirizzi github.io e pages.dev; con un dominio tuo scegli il servizio',['automatico','GitHub Pages','Cloudflare Pages']],
+   ['privacy.fontLocali','Caratteri caricati dal sito invece che da Google Fonts','c',1,'Attivalo solo dopo aver caricato nella cartella fonts i file jura-500.woff2, jura-700.woff2 e michroma-400.woff2']]},
  {id:'carte',t:'Carte e moderazione',h:'Impostazioni che cambiano di rado.',obj:'',f:[
    ['carte.nome','Nome della collezione di carte','t'],['carte.sigla','Sigla','t'],['carte.logo','Logo della collezione','t',1,'Percorso del file, es. img/cdc.png'],
    ['carte.api','Indirizzo dell’app web delle carte','u',1,'Quello che finisce con /exec'],
@@ -146,13 +152,13 @@ function listHtml(s,path,fields){
 const S={open:''};
 function render(){
   $('nav').innerHTML=SEZ.map(s=>`<button data-go="${s.id}"${s.id===cur?' aria-current="page"':''}>${s.t}</button>`).join('');
-  if(!D){$('main').innerHTML='<section class="card"><h2>Nessun contenuto caricato</h2><p class="mu">Apri questa pagina dal sito (narpojuri.github.io/editor.html) oppure premi “Apri un content.js dal PC”.</p></section>';return}
+  if(!D){$('main').innerHTML='<section class="card"><h2>Nessun contenuto caricato</h2><p class="mu">Apri questa pagina dal sito (indirizzo del sito /editor.html) oppure premi “Apri un content.js dal PC”.</p></section>';return}
   const s=SEZ.find(x=>x.id===cur);uid=0;
   let h=`<section class="card"><h2>${s.t}</h2><p class="mu">${s.h}</p>`;
   if(s.obj!=null)h+=`<div class="grid">${s.f.map(f=>field(s.obj,f)).join('')}</div>`;
   if(s.list&&s.obj!=null)h+=`</section><section class="card"><h2>${s.lt}</h2>`+listHtml(s,s.list,s.lf);
   else if(s.list)h+=listHtml(s,s.list,s.f);
-  $('main').innerHTML=h+'</section><section class="card" id="outbox" hidden><h2>Testo di content.js</h2><p class="mu">Se lo scaricamento non parte, copia questo testo e incollalo nel file su GitHub (matita → incolla → Commit changes).</p><textarea id="out" readonly></textarea><button class="btn gh" id="copy" style="margin-top:8px">Copia tutto</button> <span id="cpok" class="sm" role="status"></span></section>';
+  $('main').innerHTML=h+'</section><section class="card" id="outbox" hidden><h2>Testo di content.js</h2><p class="mu">Se lo scaricamento non parte, copia questo testo e incollalo nel file content.js del sito (su GitHub: apri il file, matita, incolla, Commit changes).</p><textarea id="out" readonly></textarea><button class="btn gh" id="copy" style="margin-top:8px">Copia tutto</button> <span id="cpok" class="sm" role="status"></span></section>';
 }
 function mark(){dirty=true;$('dirty').textContent='Modifiche non ancora scaricate'}
 
@@ -162,7 +168,7 @@ function build(){
   (o.weekly||[]).forEach(w=>{w.n=+w.n||0;w.pdf=!!w.pdf});
   if(o.canale&&o.canale.annoInizio!=='')o.canale.annoInizio=+o.canale.annoInizio||o.canale.annoInizio;
   const now=new Date().toLocaleString('it-IT');
-  return '/* CONTENUTI DEL SITO - generato con editor.html il '+now+'.\n   Si modifica dall\'editor (narpojuri.github.io/editor.html) oppure a mano. */\nwindow.NJC = '+JSON.stringify(o,null,2)+';\n';
+  return '/* CONTENUTI DEL SITO - generato con editor.html il '+now+'.\n   Si modifica dall\'editor (\'+(location.host||\'sito\')+\'/editor.html) oppure a mano. */\nwindow.NJC = '+JSON.stringify(o,null,2)+';\n';
 }
 function check(){
   const w=[];(D.news||[]).forEach((n,i)=>{if(!n.titolo)w.push('News n. '+(i+1)+' senza titolo');if(!/^\d{4}-\d{2}-\d{2}$/.test(n.data||''))w.push('“'+(n.titolo||'news '+(i+1))+'”: manca la data')});
@@ -170,7 +176,7 @@ function check(){
   (D.link||[]).forEach(l=>{if(l.titolo&&!/^https?:\/\//.test(l.url||''))w.push('Link “'+l.titolo+'”: l’indirizzo deve iniziare con https://')});
   return w;
 }
-function load(obj,from){D=obj;['link','weekly','news','amici','brani','novita','paroleVietate'].forEach(k=>{if(!Array.isArray(D[k]))D[k]=[]});['canale','prossimaLive','stati','repliche','video','carte'].forEach(k=>{if(!D[k]||typeof D[k]!=='object')D[k]={}});if(!Array.isArray(D.video.lista))D.video.lista=[];
+function load(obj,from){D=obj;['link','weekly','news','amici','brani','novita','paroleVietate'].forEach(k=>{if(!Array.isArray(D[k]))D[k]=[]});['canale','prossimaLive','stati','repliche','video','carte','privacy'].forEach(k=>{if(!D[k]||typeof D[k]!=='object')D[k]={}});if(!Array.isArray(D.video.lista))D.video.lista=[];
   $('origin').textContent=from;dirty=false;$('dirty').textContent='';render()}
 
 document.addEventListener('input',e=>{const el=e.target,p=el.dataset&&el.dataset.p;if(!p||!D)return;set(D,p,el.type==='checkbox'?el.checked:fromText(el.dataset.t,el.value));mark();
@@ -186,7 +192,7 @@ document.addEventListener('click',e=>{
   if(b.id==='dl'||b.id==='show'){
     const w=check(),txt=build();render();const box=$('outbox');box.hidden=false;$('out').value=txt;
     if(w.length)box.insertAdjacentHTML('afterbegin','<p class="note" style="margin:0 0 10px"><b>Da controllare:</b> '+w.map(esc).join(' · ')+'</p>');
-    if(b.id==='dl'){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/javascript'}));a.download='content.js';document.body.appendChild(a);a.click();a.remove();dirty=false;$('dirty').textContent='Scaricato: ora caricalo su GitHub al posto di quello vecchio.'}catch(err){$('dirty').textContent='Scaricamento non riuscito: copia il testo qui sotto.'}}
+    if(b.id==='dl'){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/javascript'}));a.download='content.js';document.body.appendChild(a);a.click();a.remove();dirty=false;$('dirty').textContent='Scaricato: ora caricalo sul sito al posto di quello vecchio.'}catch(err){$('dirty').textContent='Scaricamento non riuscito: copia il testo qui sotto.'}}
     box.scrollIntoView({block:'start'});return}
   if(b.id==='copy'){const t=$('out');const no=()=>{t.select();$('cpok').textContent='Selezionato: premi Ctrl+C.'};try{navigator.clipboard.writeText(t.value).then(()=>$('cpok').textContent='Copiato.',no)}catch(err){no()}}
 });
