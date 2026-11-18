@@ -693,10 +693,39 @@ function sessRow(r,skip,extra){
   const t=[...r[4].filter(x=>!(skip.d==='rubriche'&&skip.k===x)).map(x=>tgD('rubriche',x)),...r[3].filter(x=>x!==skip.g).map(tgG),...r[5].filter(x=>!(skip.d==='ospiti'&&skip.k===x)).map(x=>tgD('ospiti',x))].join('');
   return `<li><span class="b">${dt(r[0])}</span><span>${esc(r[2]||'(senza titolo)')}${t?`<span class="tgs">${t}</span>`:''}</span><span class="mu sm">${dur(r[1])}${extra||''}</span></li>`;
 }
+/* rubriche e ospiti: cerca, filtra e ordina */
+const DF={rubriche:{q:'',y:'',c:'',x:'',s:'n'},ospiti:{q:'',y:'',c:'',x:'',s:'n'}};
+const DFS=[['n','Più live'],['h','Più ore'],['g','Più giochi'],['r','Visti di recente'],['p','Prima apparizione'],['a','Nome (A-Z)']];
+const eMin=e=>e.mm!=null?e.mm:(e.mm=e.rows.reduce((a,r)=>a+r[1],0));
+function dimList(d){
+  const f=DF[d],q=f.q.trim().toLowerCase(),oi=d==='ospiti'?4:5;
+  const L=dimAgg(d).filter(e=>(!q||e.k.toLowerCase().includes(q)||(d==='ospiti'&&(ALT.o[e.k]||[]).some(a=>a.toLowerCase().includes(q))))
+    &&(!f.y||e.rows.some(r=>r[0].startsWith(f.y)))&&(!f.c||e.rows.some(r=>r[3].some(k=>GI[k]&&GI[k].c.includes(f.c))))&&(!f.x||e.rows.some(r=>r[oi].includes(f.x))));
+  const so={n:(a,b)=>b.rows.length-a.rows.length,h:(a,b)=>eMin(b)-eMin(a),g:(a,b)=>b.g.size-a.g.size,r:(a,b)=>b.rows[0][0].localeCompare(a.rows[0][0]),
+    p:(a,b)=>a.rows[a.rows.length-1][0].localeCompare(b.rows[b.rows.length-1][0]),a:(a,b)=>a.k.localeCompare(b.k,'it',{sensitivity:'base'})}[f.s]||((a,b)=>0);
+  return L.slice().sort((a,b)=>so(a,b)||b.rows.length-a.rows.length||a.k.localeCompare(b.k,'it'));
+}
+function dimTile(d,x){
+  const s=d in DF?DF[d].s:'n',extra=s==='h'?' · '+dur(eMin(x)):s==='r'?' · ultima '+dt(x.rows[0][0]):s==='p'?' · dal '+dt(x.rows[x.rows.length-1][0]):'';
+  return `<button class="mt" data-a="bk" data-v="${esc(x.k)}">${d==='ospiti'?avSpan(x.k):''}<span><b>${esc(x.k)}</b><span class="mu sm">${x.rows.length} live · ${x.g.size} ${x.g.size===1?'gioco':'giochi'}${extra}</span></span></button>`;
+}
+function dimRes(d){const L=dimList(d);return {n:L.length,html:L.length?`<div class="mts">${L.map(x=>dimTile(d,x)).join('')}</div>`:'<p class="mu">Nessun risultato con questi filtri.</p>'}}
+function dimFilters(d){
+  const f=DF[d],opt=(v,t,cur)=>`<option value="${esc(v)}"${String(cur)===String(v)?' selected':''}>${esc(t)}</option>`;
+  const sel=(k,lab,first,vals,cur)=>`<div class="fl"><label for="df${k}">${lab}</label><select class="in" id="df${k}" data-df="${k}">${first!=null?opt('',first,cur):''}${vals.map(v=>Array.isArray(v)?opt(v[0],v[1],cur):opt(v,v,cur)).join('')}</select></div>`;
+  const anni=[...new Set(R.map(r=>r[0].slice(0,4)))].sort().reverse(),cons=[...new Set(G.flatMap(g=>g.c))].sort((a,b)=>a.localeCompare(b,'it'));
+  const altri=dimAgg(d==='ospiti'?'rubriche':'ospiti').map(x=>x.k).sort((a,b)=>a.localeCompare(b,'it',{sensitivity:'base'}));
+  const on=f.q||f.y||f.c||f.x;
+  return `<details class="filt"${wide()||on?' open':''}><summary>Cerca, filtra e ordina</summary><div class="ff">
+   <div class="fl"><label for="dfq">${d==='ospiti'?'Nome dell’ospite':'Nome della rubrica'}</label><input class="in" id="dfq" data-df="q" type="search" value="${esc(f.q)}" placeholder="${d==='ospiti'?'es. PixelKika':'es. NarpoMattina'}"></div>
+   ${sel('y','Anno','Tutti',anni,f.y)}${sel('c','Console','Tutte',cons,f.c)}${sel('x',d==='ospiti'?'Rubrica':'Ospite',d==='ospiti'?'Tutte':'Tutti',altri,f.x)}${sel('s','Ordina per',null,DFS,f.s)}
+   <div class="fl"><button class="btn gh" data-a="dfclear"${on?'':' disabled'}>Azzera</button></div></div></details>`;
+}
 function dimView(d){
   const A=dimAgg(d),e=S.bk&&A.find(x=>x.k===S.bk);
   if(d==='ospiti')setTimeout(needAv,0);
-  const tile=x=>`<button class="mt" data-a="bk" data-v="${esc(x.k)}">${d==='ospiti'?avSpan(x.k):''}<span><b>${esc(x.k)}</b><span class="mu sm">${x.rows.length} live · ${x.g.size} ${x.g.size===1?'gioco':'giochi'}</span></span></button>`;
+  const tile=x=>dimTile(d,x);
+  if(!e&&d in DF){const r=dimRes(d);return `<section class="card">${H(DIMS[d][0])}${dimFilters(d)}<p class="mu sm" id="dimc" role="status" style="margin:8px 0 12px">${nf(r.n)} ${d==='ospiti'?(r.n===1?'ospite':'ospiti'):(r.n===1?'rubrica':'rubriche')}</p><div id="dimres">${r.html}</div></section>`}
   if(!e)return `<section class="card">${H(d==='console'?'Console per produttore':DIMS[d][0])}${d==='console'?byMk(A.map(x=>x.k),(m,xs)=>`<h3 style="margin:16px 0 8px">${esc(m)}</h3><div class="mts">${xs.map(k=>tile(A.find(x=>x.k===k))).join('')}</div>`):`<div class="mts">${A.map(tile).join('')}</div>`}</section>`;
   const gu=D.GUEST[e.k]||{},min=e.rows.reduce((a,r)=>a+r[1],0),gs=[...e.g].sort((a,b)=>b[1]-a[1]);
   const desc=d==='rubriche'?(D.DESC[e.k]||''):d==='ospiti'?(gu.d||''):d==='console'?`I giochi portati in live su ${e.k}.`:`Tutto quello che è passato in live nel ${e.k}.`;
@@ -945,11 +974,15 @@ const ACT={
   track(v){P.i=+v;P.t0=0;if(P.audio){P.audio.pause();P.audio=null}pStart(0)},
   seek(v,b,e){const r=b.getBoundingClientRect(),f=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(pDur())pStart(f*pDur())},
   modout(){LS.set('modk','');render(false)},
+  dfclear(){const f=DF[S.bt];if(!f)return;Object.assign(f,{q:'',y:'',c:'',x:''});render(false)},
   egg(){ACT.egg.n=(ACT.egg.n||0)+1;if(ACT.egg.n>=7){ACT.egg.n=0;location.hash='segreto'}}
 };
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&ACT[b.dataset.a])ACT[b.dataset.a](b.dataset.v,b,e)});
 document.addEventListener('submit',e=>{e.preventDefault();if(e.target.dataset.board)post(e.target);else if(e.target.dataset.mod!=null)modTry(e.target);else if(e.target.dataset.snd!=null){const b=document.activeElement;if(b)b.blur();loadSuoni(true)}else if(e.target.dataset.cn!=null){S.cn=e.target.nick.value;S.sx=null;CA.at=0;render(false)}});
-const onF=e=>{const f=e.target.dataset&&e.target.dataset.f;if(f){S[f]=e.target.value;S.page=0;renderBL()}};
+const onF=e=>{const f=e.target.dataset&&e.target.dataset.f;if(f){S[f]=e.target.value;S.page=0;renderBL()}
+  const k=e.target.dataset&&e.target.dataset.df,d=S.bt;if(k&&DF[d]){DF[d][k]=e.target.value;drawDim(d)}};
+function drawDim(d){const box=$('dimres');if(!box)return;const r=dimRes(d);box.innerHTML=r.html;$('dimc').textContent=nf(r.n)+' '+(d==='ospiti'?(r.n===1?'ospite':'ospiti'):(r.n===1?'rubrica':'rubriche'));
+  const b=document.querySelector('[data-a=dfclear]');if(b){const f=DF[d];b.disabled=!(f.q||f.y||f.c||f.x)}if(d==='ospiti')needAv()}
 document.addEventListener('input',onF);document.addEventListener('change',onF);
 const KON=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let kp=0;
 document.addEventListener('keydown',e=>{kp=e.key===KON[kp]?kp+1:(e.key===KON[0]?1:0);if(kp===KON.length){kp=0;location.hash='segreto'}});
