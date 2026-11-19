@@ -107,7 +107,7 @@ const SEZ=[
  {id:'brani',t:'Musica',h:'I brani del lettore. Carica i file nella cartella musica. Se l’elenco è vuoto suonano i loop di prova.',list:'brani',name:x=>x.titolo||'(senza titolo)',blank:()=>({titolo:'',src:''}),f:[
    ['titolo','Titolo','t'],['src','File','t',0,'Es. musica/brano.mp3']]},
  {id:'giochi',t:'Giochi e repliche',h:'Correzioni a mano sul backlog.',obj:'',f:[
-   ['stati','Stato dei giochi (solo per i casi particolari)','M',1,'Di norma lo stato si scrive nella colonna Finito della scheda Giochi del foglio (Sì, No, In corso). Quello che scrivi qui vince anche sul foglio. Uno per riga: Nome del gioco = finito  (oppure: in corso, non finito, abbandonato).'],
+   ['stati','Stato dei giochi (solo per i casi particolari)','M',1,'Di norma lo stato si scrive nella colonna Finito della scheda Giochi del foglio (Sì, No, Oneshot, In corso). Quello che scrivi qui vince anche sul foglio. Uno per riga: Nome del gioco = finito  (oppure: in corso, non finito, oneshot, abbandonato).'],
    ['repliche','Link alle repliche','M',1,'Uno per riga: 2026-11-09 = https://…']]},
  {id:'privacy',t:'Privacy',h:'I dati che compaiono nella pagina “Privacy e cookie” del sito.',obj:'',f:[
    ['privacy.titolare','Titolare del trattamento','t',1,'Il tuo nome e cognome, oppure il nome con cui gestisci il canale'],
