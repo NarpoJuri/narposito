@@ -3,7 +3,7 @@
 window.NJC = {
   "canale": {
     "nome": "Narpo_Juri",
-    "motto": "6 anni di live, un gioco alla volta.",
+    "motto": "Retrogaming, Giochi Dimenticati e Dimenticabili",
     "annoInizio": 2020,
     "twitch": "https://www.twitch.tv/narpo_juri",
     "bio": "Appassionato di retrogaming tra giochi dimenticati e dimenticabili.",
