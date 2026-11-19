@@ -49,7 +49,7 @@ window.NJC = {
     }
   ],
   "prossimaLive": {
-    "quando": "giovedì 19 alle 21.30",
+    "quando": "giovedì 19 alle 21.00",
     "gioco": "Crash Bash "
   },
   "novita": [
