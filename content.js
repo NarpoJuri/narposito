@@ -49,11 +49,11 @@ window.NJC = {
     }
   ],
   "prossimaLive": {
-    "quando": "giovedì 19 alle 21.00",
-    "gioco": "Crash Bash "
+    "quando": "Domenica 22 alle 10.00",
+    "gioco": "Lost in Japan "
   },
   "novita": [
-    "Crash Bash con i Millennial Lag Podcast"
+    "Lost in Japan - Beyblade Boy Blade RPG"
   ],
   "stati": {},
   "repliche": {},
