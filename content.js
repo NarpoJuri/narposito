@@ -1,4 +1,4 @@
-/* CONTENUTI DEL SITO - generato con editor.html il 17/11/2026, 19:44:49.
+/* CONTENUTI DEL SITO - generato con editor.html il 22/11/2026, 13:09:20.
    Si modifica dall'editor ('+(location.host||'sito')+'/editor.html) oppure a mano. */
 window.NJC = {
   "canale": {
@@ -49,15 +49,25 @@ window.NJC = {
     }
   ],
   "prossimaLive": {
-    "quando": "Domenica 22 alle 10.00",
-    "gioco": "Lost in Japan "
+    "quando": "Lunedì 23 alle 21.00",
+    "gioco": "Quizzoni! "
   },
   "novita": [
-    "Lost in Japan - Beyblade Boy Blade RPG"
+    "Gamedle - Quiz - Altro alle 21.00"
   ],
   "stati": {},
   "repliche": {},
   "weekly": [
+    {
+      "n": 3,
+      "data": "2026-11-22",
+      "sommario": [
+        "- Quizzoni",
+        "- Star Wars Shadows of the Empire",
+        "- El Dorado Gate Vol.1"
+      ],
+      "pdf": true
+    },
     {
       "n": 2,
       "data": "2026-11-15",
