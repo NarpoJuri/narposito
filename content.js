@@ -49,11 +49,11 @@ window.NJC = {
     }
   ],
   "prossimaLive": {
-    "quando": "Lunedì 23 alle 21.00",
-    "gioco": "Quizzoni! "
+    "quando": "Venerdì 27 alle 21.00",
+    "gioco": "Your Choice "
   },
   "novita": [
-    "Gamedle - Quiz - Altro alle 21.00"
+    "Star Wars N64 alle 21.00"
   ],
   "stati": {},
   "repliche": {},
